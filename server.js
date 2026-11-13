@@ -615,7 +615,7 @@ app.post('/api/delete-all-records', async (req, res) => {
 // 8. START SERVER (PORT 3000)
 // ==========================================
 const port = Number(process.env.PORT || 3000);
-const host = process.env.HOST || '0.0.0.0';
+const host = '0.0.0.0';
 const localIp = getAdvertisedHost();
 
 require('./claudeStats')(app, cache);

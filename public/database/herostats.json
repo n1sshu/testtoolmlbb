@@ -1,0 +1,346 @@
+{
+  "heroes": [
+    {
+      "img": "/Assets/HeroPick/Allain.png",
+      "name": "Allain",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Angela.png",
+      "name": "Angela",
+      "picks": 4,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Fang.png",
+      "name": "Fang",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Feyd.png",
+      "name": "Feyd",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/AoYin.png",
+      "name": "AoYin",
+      "picks": 4,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Consort_Yu.png",
+      "name": "Consort Yu",
+      "picks": 4,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Fuzi.png",
+      "name": "Fuzi",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Agudo.png",
+      "name": "Agudo",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Alessio.png",
+      "name": "Alessio",
+      "picks": 1,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Biron.png",
+      "name": "Biron",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Cirrus.png",
+      "name": "Cirrus",
+      "picks": 5,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Wang_Zhaojun.png",
+      "name": "Wang Zhaojun",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Xiang_Yu.png",
+      "name": "Xiang Yu",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Butterfly.png",
+      "name": "Butterfly",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/Guiguzi.png",
+      "name": "Guiguzi",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/hirara.png",
+      "name": "Hirara",
+      "picks": 6,
+      "bans": 7
+    },
+    {
+      "img": "/Assets/HeroPick/wanwan.png",
+      "name": "Wanwan",
+      "picks": 3,
+      "bans": 5
+    },
+    {
+      "img": "/Assets/HeroPick/aulus.png",
+      "name": "Aulus",
+      "picks": 7,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/atlas.png",
+      "name": "Atlas",
+      "picks": 12,
+      "bans": 4
+    },
+    {
+      "img": "/Assets/HeroPick/angela.png",
+      "name": "Angela",
+      "picks": 0,
+      "bans": 1
+    },
+    {
+      "img": "/Assets/HeroPick/paquito.png",
+      "name": "Paquito",
+      "picks": 4,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/hayabusa.png",
+      "name": "Hayabusa",
+      "picks": 0,
+      "bans": 1
+    },
+    {
+      "img": "/Assets/HeroPick/alpha.png",
+      "name": "Alpha",
+      "picks": 9,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/fredrin.png",
+      "name": "Fredrin",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/jawhead.png",
+      "name": "Jawhead",
+      "picks": 5,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/ling.png",
+      "name": "Ling",
+      "picks": 9,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/alice.png",
+      "name": "Alice",
+      "picks": 3,
+      "bans": 4
+    },
+    {
+      "img": "/Assets/HeroPick/mathilda.png",
+      "name": "Mathilda",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/vexana.png",
+      "name": "Vexana",
+      "picks": 2,
+      "bans": 1
+    },
+    {
+      "img": "/Assets/HeroPick/kaja.png",
+      "name": "Kaja",
+      "picks": 0,
+      "bans": 1
+    },
+    {
+      "img": "/Assets/HeroPick/aldous.png",
+      "name": "Aldous",
+      "picks": 2,
+      "bans": 1
+    },
+    {
+      "img": "/Assets/HeroPick/barats.png",
+      "name": "Barats",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/ixia.png",
+      "name": "Ixia",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/floryn.png",
+      "name": "Floryn",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/lunox.png",
+      "name": "Lunox",
+      "picks": 5,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/yuzhong.png",
+      "name": "Yuzhong",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/terizla.png",
+      "name": "Terizla",
+      "picks": 2,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/arlot.png",
+      "name": "Arlot",
+      "picks": 6,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/balmond.png",
+      "name": "Balmond",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/benedetta.png",
+      "name": "Benedetta",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/claude.png",
+      "name": "Claude",
+      "picks": 6,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/chang_e.png",
+      "name": "Chang e",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/badang.png",
+      "name": "Badang",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/baxia.png",
+      "name": "Baxia",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/gatotkaca.png",
+      "name": "Gatotkaca",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/alucard.png",
+      "name": "Alucard",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/fanny.png",
+      "name": "Fanny",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/yisunshin.png",
+      "name": "Yisunshin",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/beatrix.png",
+      "name": "Beatrix",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/hanzo.png",
+      "name": "Hanzo",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/helcurt.png",
+      "name": "Helcurt",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/hanabi.png",
+      "name": "Hanabi",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/thamuz.png",
+      "name": "Thamuz",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/cyclops.png",
+      "name": "Cyclops",
+      "picks": 0,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/bane.png",
+      "name": "Bane",
+      "picks": 3,
+      "bans": 0
+    },
+    {
+      "img": "/Assets/HeroPick/argus.png",
+      "name": "Argus",
+      "picks": 3,
+      "bans": 2
+    },
+    {
+      "img": "/Assets/HeroPick/diggie.png",
+      "name": "Diggie",
+      "picks": 1,
+      "bans": 0
+    }
+  ]
+}

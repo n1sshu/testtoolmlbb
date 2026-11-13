@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Postgame Scoreboard</title>
+<style>
+@font-face { font-family: 'Big Noodle Titling'; src: url('Assets/Font/big_noodle_titling.ttf') format('truetype'); }
+
+:root {
+    --bg: #05070d;
+    --panel: #0b1220;
+    --panel-2: #101a30;
+    --blue: #00AFFF;          /* left / blue team */
+    --blue-2: #4d6bff;        /* right / red team, kept in the blue family */
+    --gold: #ffc531;
+    --white: #f2f7ff;
+    --mute: #7f92b3;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; background: transparent; overflow: hidden; }
+body { font-family: 'Big Noodle Titling', 'Impact', sans-serif; color: var(--white); letter-spacing: 1px; }
+
+/* fixed 1400x788 stage, auto-scaled to the window (same proportions as the reference) */
+#stage { position: absolute; left: 0; top: 0; width: 1400px; height: 787.5px; transform-origin: 0 0; overflow: hidden;
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(0,120,255,.16), transparent 60%),
+        linear-gradient(180deg, #070b14, #03050a); }
+.abs { position: absolute; }
+
+/* ============ HEADER ============ */
+.hdr-side { top: 0; height: 98px; width: 368px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+.hdr-side.L { left: 0; align-items: flex-end; padding-right: 28px; }
+.hdr-side.R { right: 0; align-items: flex-start; padding-left: 28px; }
+.hdr-side.win  { background: linear-gradient(90deg, #0d1424, #1a2338); }
+.hdr-side.R.win { background: linear-gradient(270deg, #0d1424, #1a2338); }
+.hdr-side.win .tname, .hdr-side.win .tstate { color: var(--blue); text-shadow: none; }
+.hdr-side.lose, .hdr-side.none { background: linear-gradient(90deg, #0d1424, #1a2338); }
+.hdr-side.R.lose, .hdr-side.R.none { background: linear-gradient(270deg, #0d1424, #1a2338); }
+.tname { position: relative; font-size: 50px; line-height: 1; text-transform: uppercase; white-space: nowrap; max-width: 330px; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
+.tstate { position: relative; font-size: 17px; letter-spacing: 2px; margin-top: 2px; color: #cfe6ff; }
+
+.logo-box { top: 0; height: 98px; width: 98px; background: linear-gradient(180deg, #0f1a30, #070d1b); border-bottom: 2px solid var(--blue);
+    display: flex; align-items: center; justify-content: center; }
+.logo-box.L { left: 368px; } .logo-box.R { left: 934px; }
+.logo-box img { max-width: 78px; max-height: 78px; }
+.logo-box span { font-size: 34px; color: var(--blue); }
+
+.hdr-mid { left: 466px; top: 0; width: 468px; height: 98px; background: linear-gradient(180deg, #0c1528, #060a14); border-bottom: 2px solid var(--blue); text-align: center; }
+.hdr-mid .sc { position: absolute; top: 12px; font-size: 56px; width: 130px; text-shadow: none; }
+.hdr-mid .sc.L { left: 8px; } .hdr-mid .sc.R { right: 8px; }
+.hdr-mid .stage { position: absolute; left: 0; width: 100%; top: 8px; font-size: 44px; color: var(--blue); text-shadow: none; }
+.hdr-mid .ev { position: absolute; left: 0; width: 100%; top: 56px; font-size: 16px; color: var(--white); line-height: 1.15; }
+.hdr-mid .ev small { display: block; color: var(--mute); font-size: 15px; }
+
+.ticker { top: 98px; height: 14px; overflow: hidden; background: #000; color: var(--blue); font-size: 12px; line-height: 14px; white-space: nowrap; letter-spacing: 3px; }
+.ticker.L { left: 0; width: 467px; } .ticker.R { left: 933px; width: 467px; }
+
+/* ============ PLAYER CARDS ============ */
+.card { position: absolute; width: 489px; height: 90px; display: flex; overflow: hidden;
+    background: linear-gradient(180deg, #111c33, #0a1224); border: 1px solid rgba(0,175,255,.55);
+    box-shadow: 0 0 14px rgba(0,120,255,.25), inset 0 0 20px rgba(0,60,160,.25); }
+.card.L { left: 8px; flex-direction: row; }
+.card.R { left: 903px; flex-direction: row-reverse; border-color: rgba(77,107,255,.6); }
+
+.portrait { position: relative; width: 232px; height: 100%; flex-shrink: 0; overflow: hidden; background: #0a1224; }
+.portrait .art { position: absolute; inset: -50px 0 0 0; background-size: cover; background-position: center top; }
+.card.L .portrait .art { -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent); mask-image: linear-gradient(90deg, #000 55%, transparent); }
+.card.R .portrait .art { -webkit-mask-image: linear-gradient(270deg, #000 55%, transparent); mask-image: linear-gradient(270deg, #000 55%, transparent); }
+.portrait .pl { position: absolute; bottom: 0; height: 90px; width: 96px; object-fit: cover; object-position: center top; transform: translateY(-10px) scale(1.8); transform-origin: 50% 22%; z-index: 1; }
+.card.L .portrait .pl { right: 0; } .card.R .portrait .pl { left: 0; }
+.portrait .lvl { position: absolute; top: 0; z-index: 3; min-width: 24px; height: 24px; padding: 0 5px; text-align: center; font-size: 19px; line-height: 25px; color: #fff; background: #0a2a6b; }
+.card.L .portrait .lvl { left: 0; } .card.R .portrait .lvl { right: 0; }
+.portrait .txt { position: absolute; bottom: 0; z-index: 3; width: 104px; padding: 8px 6px 4px; font-size: 14px; line-height: 1.1; text-transform: uppercase; text-shadow: 0 1px 3px #000; }
+.card.L .portrait .txt { left: 0; text-align: left; background: linear-gradient(90deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.45) 65%, rgba(0,0,0,0) 100%); }
+.card.R .portrait .txt { right: 0; text-align: right; background: linear-gradient(270deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,.45) 65%, rgba(0,0,0,0) 100%); }
+.portrait .txt b { display: block; font-weight: normal; font-size: 17px; color: #fff; max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.portrait .txt i { font-style: normal; color: #9fd3ff; font-size: 13px; }
+
+.stats { width: 128px; height: 100%; display: flex; flex-direction: column; justify-content: center; text-align: center; flex-shrink: 0; overflow: hidden; }
+.stats .lab { font-size: 16px; color: var(--blue); line-height: 1; }
+.card.R .stats .lab { color: #8ea2ff; }
+.stats .kda { font-size: 19px; line-height: 1; margin: 2px 0 6px; white-space: nowrap; }
+.stats .gold { font-size: 20px; line-height: 1; margin-top: 2px; white-space: nowrap; }
+
+.items { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 4px; padding: 6px 8px 6px 4px; align-content: center; }
+.slot { width: 100%; aspect-ratio: 1; background: rgba(0,0,0,.45); border: 1px solid rgba(120,160,255,.28); overflow: hidden; }
+.slot img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* ============ CENTER ============ */
+.dur-label { left: 497px; width: 406px; top: 118px; text-align: center; font-size: 22px; color: var(--white); }
+.dur-val { left: 497px; width: 406px; top: 148px; text-align: center; font-size: 56px; line-height: 1.05; text-shadow: none; color: var(--blue); }
+.gold-row { left: 497px; width: 406px; top: 224px; height: 46px; }
+.gold-row .g { position: absolute; top: 2px; font-size: 40px; color: var(--gold); text-shadow: 0 0 12px rgba(255,197,49,.35); width: 150px; }
+.gold-row .g.L { left: 40px; text-align: left; } .gold-row .g.R { right: 40px; text-align: right; }
+.gold-row .coin { position: absolute; left: 0; width: 100%; top: 2px; text-align: center; font-size: 40px; line-height: 1.05; color: var(--gold); }
+
+.ban-title { left: 497px; width: 406px; top: 496px; text-align: center; text-indent: 6px; font-size: 17px; letter-spacing: 6px; color: var(--white); }
+.ban-row { left: 497px; width: 406px; height: 60px; }
+.ban { position: absolute; top: 0; width: 60px; height: 60px; background: #0a1224 center/cover no-repeat; border: 2px solid rgba(0,175,255,.6); overflow: hidden;
+    box-shadow: 0 0 12px rgba(0,120,255,.3); }
+.ban::before { content: ''; position: absolute; inset: 0; background: rgba(2,8,20,.45); }
+.ban.L { left: 58px; } .ban.R { right: 58px; border-color: rgba(77,107,255,.7); }
+.ban.empty { background: rgba(0,0,0,.35); border-style: dashed; border-color: rgba(120,160,255,.25); box-shadow: none; }
+.ban.empty::before { display: none; }
+
+.foot { left: 497px; width: 406px; top: 742px; text-align: center; font-size: 14px; letter-spacing: 4px; color: var(--mute); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<script>
+/* ---------- edit these to change the header text ---------- */
+const CONFIG = {
+    stage: 'GRAND FINALS',
+    event: 'ETERNAL RIVALS S01',
+    tickerText: 'TC VS BR',
+    footer: 'MONARCHY ESPORTS'
+};
+/* --------------------------------------------------------- */
+
+const TOPS = [158, 277, 396, 514, 632];       // player rows
+const BAN_TOP = 306, BAN_PITCH = 84;           // 5 ban rows, evenly spaced under the gold row
+let draft = null;                               // live draft data (bans come from here)
+const stage = document.getElementById('stage');
+let data = null, lastJson = '';
+
+function fit() {
+    const s = Math.min(innerWidth / 1400, innerHeight / 787.5);
+    stage.style.transform = `scale(${s})`;
+    stage.style.left = ((innerWidth - 1400 * s) / 2) + 'px';
+    stage.style.top = ((innerHeight - 788 * s) / 2) + 'px';
+}
+addEventListener('resize', fit); fit();
+
+const IMG_RE = /\.(png|jpe?g|webp|svg|gif)(\?.*)?$/i;
+function scanLogo(o) {
+    if (!o || typeof o !== 'object') return [];
+    const skip = /^(playerlist|pick|ban|bans|itemlist)$/i, out = [];
+    for (const [k, v] of Object.entries(o)) {
+        if (skip.test(k)) continue;
+        if (typeof v === 'string' && (IMG_RE.test(v) || /^data:image\//.test(v)) && /logo|display|image|img|icon|team/i.test(k)) out.push(v);
+    }
+    return out;
+}
+function logoCandidates(t, idx) {
+    const key = idx === 1 ? 'blueside' : 'redside';
+    const extra = [
+        ...scanLogo(t), ...scanLogo(draft?.[key]), ...scanLogo(draft),
+        data?.['displayImage' + idx], draft?.['displayImage' + idx], data?.teamdata?.['displayImage' + idx],
+        t && t['displayImage' + idx]
+    ].filter(v => typeof v === 'string' && v);
+    return _logoCandidates(t, extra.map(v => /^(https?:|data:)/.test(v) ? v : '/' + v.replace(/^\/+/, '')), idx);
+}
+function _logoCandidates(t, extra) {
+    const n = (t && t.teamname) || '';
+    const own = [t && t.logo, t && t.teamlogo, t && t.logoimg, t && t.image].filter(Boolean).map(v => /^(https?:|data:)/.test(v) ? String(v) : '/' + String(v).replace(/^\/+/, ''));
+    const dirs = ['Team', 'Teams', 'TeamLogo', 'Logo', 'Logos'];
+    const names = [n, n.toLowerCase(), n.toUpperCase(), n.replace(/\s+/g, '_'), n.replace(/\s+/g, '')];
+    const out = [...extra, ...own];
+    for (const d of dirs) for (const nm of names) if (nm) out.push(`/Assets/${d}/${encodeURIComponent(nm)}.png`);
+    return [...new Set(out)];
+}
+function nextLogo(img) {
+    const c = JSON.parse(img.dataset.c), i = +img.dataset.i + 1;
+    if (i < c.length) { img.dataset.i = i; img.src = c[i]; return; }
+    const sp = document.createElement('span'); sp.textContent = img.dataset.fb; img.replaceWith(sp);
+}
+function logoHtml(t, side, fallback) {
+    const c = logoCandidates(t, side === 'L' ? 1 : 2);
+    if (!c.length) return `<div class="abs logo-box ${side}"><span>${esc(fallback)}</span></div>`;
+    return `<div class="abs logo-box ${side}"><img data-c='${esc(JSON.stringify(c)).replace(/'/g, '&#39;')}' data-i="0" data-fb="${esc(fallback)}" src="${esc(c[0])}" onerror="nextLogo(this)"></div>`;
+}
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const pretty = s => String(s || '').replace(/[_-]+/g, ' ');
+const fmtGold = n => { n = +n || 0; return n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n); };
+const fmtKda = k => String(k || '0/0/0').split('/').map(x => x.trim()).join(' / ');
+const heroImg = h => h ? `Assets/HeroPick/${esc(h)}.png` : 'Assets/HeroPick/idle.png';
+
+function itemsHtml(list) {
+    let h = '';
+    for (let i = 0; i < 6; i++) {
+        const it = (list || [])[i];
+        h += (!it || it === 'idle')
+            ? '<div class="slot"></div>'
+            : `<div class="slot"><img src="Assets/Itemandspell/${esc(it)}.png" onerror="this.style.display='none'"></div>`;
+    }
+    return h;
+}
+
+function photoSrc(p, i, side) {
+    const dp = draft?.[side === 'L' ? 'blueside' : 'redside']?.pick?.[i] || {};
+    const v = dp.photo || dp.playerPhoto || dp.player_photo;
+    if (v) return String(v).startsWith('http') ? v : '/' + String(v).replace(/^\/+/, '');
+    return `/Assets/player/${p.name || 'playertemp'}.png`;
+}
+
+function cardHtml(p, i, side) {
+    p = p || {};
+    return `
+    <div class="card ${side}" style="top:${TOPS[i]}px">
+        <div class="portrait">
+            <div class="art" style="background-image:url('${heroImg(p.hero)}')"></div>
+            <img class="pl" src="${esc(photoSrc(p, i, side))}" onerror="this.onerror=null;this.src='/Assets/player/playertemp.png'">
+            <div class="txt"><i>${esc(pretty(p.hero))}</i><b>${esc(p.name || 'Player ' + (i + 1))}</b></div>
+        </div>
+        <div class="stats">
+            <div class="lab">KDA</div><div class="kda">${esc(fmtKda(p.KDA))}</div>
+            <div class="lab">GOLD</div><div class="gold">${esc(p.gold ?? 0)}</div>
+        </div>
+        <div class="items">${itemsHtml(p.itemlist)}</div>
+    </div>`;
+}
+
+function banSrc(v) {
+    if (v && typeof v === 'object') v = v.hero || v.img || v.name;
+    if (!v || v === 'idle') return '';
+    v = String(v);
+    return v.includes('/') ? '/' + v.replace(/^\/+/, '') : `/Assets/HeroPick/${v}.png`;
+}
+function getBan(sideKey, teamKey, i) {
+    const fromDraft = banSrc(draft?.[sideKey]?.ban?.[i]);
+    return fromDraft || banSrc(data?.teamdata?.[teamKey]?.bans?.[i]);
+}
+function banHtml(src, side) {
+    if (!src) return `<div class="ban ${side} empty"></div>`;
+    return `<div class="ban ${side}" style="background-image:url('${esc(src)}')"></div>`;
+}
+
+function render() {
+    const j = JSON.stringify([data, draft]);
+    if (j === lastJson) return;
+    lastJson = j;
+    if (!data || !data.teamdata) return;
+
+    const B = data.teamdata.blueteam, R = data.teamdata.redteam, w = data.winmatches || 'none';
+    const cls = side => w === 'none' ? 'none' : (w === side ? 'win' : 'lose');
+    const state = side => w === 'none' ? '' : (w === side ? 'VICTORY' : 'DEFEAT');
+    const ticker = (CONFIG.tickerText + '   ').repeat(20);
+
+    let h = '';
+    // header
+    h += `<div class="abs hdr-side L ${cls('blue')}"><div class="tname">${esc(B.teamname || 'BLUE TEAM')}</div><div class="tstate">${state('blue')}</div></div>`;
+    h += logoHtml(B, 'L', (B.teamname || 'BLU').slice(0, 3).toUpperCase());
+    h += `<div class="abs hdr-mid">
+            <div class="sc L">${esc(B.score ?? 0)}</div>
+            <div class="stage">${esc(CONFIG.stage)}</div>
+            <div class="ev">${esc(CONFIG.event)}<small>GAME ${esc(data.game_number || 1)}</small></div>
+            <div class="sc R">${esc(R.score ?? 0)}</div>
+          </div>`;
+    h += logoHtml(R, 'R', (R.teamname || 'RED').slice(0, 3).toUpperCase());
+    h += `<div class="abs hdr-side R ${cls('red')}"><div class="tname">${esc(R.teamname || 'RED TEAM')}</div><div class="tstate">${state('red')}</div></div>`;
+    h += `<div class="abs ticker L">${esc(ticker)}</div><div class="abs ticker R">${esc(ticker)}</div>`;
+
+    // center
+    h += `<div class="abs dur-label">GAME DURATION</div><div class="abs dur-val">${esc(data.game_duration || '00:00')}</div>`;
+    h += `<div class="abs gold-row"><div class="g L">${fmtGold(B.totalgold)}</div><div class="coin">< $ ></div><div class="g R">${fmtGold(R.totalgold)}</div></div>`;
+    h += `<div class="abs ban-title">&lt; BANS &gt;</div>`;
+    for (let i = 0; i < 5; i++) {
+        h += `<div class="abs ban-row" style="top:${BAN_TOP + i * BAN_PITCH}px">
+                ${banHtml(getBan('blueside', 'blueteam', i), 'L')}${banHtml(getBan('redside', 'redteam', i), 'R')}
+              </div>`;
+    }
+
+    // players
+    for (let i = 0; i < 5; i++) {
+        h += cardHtml((B.playerlist || [])[i], i, 'L');
+        h += cardHtml((R.playerlist || [])[i], i, 'R');
+    }
+    if (CONFIG.footer) h += `<div class="abs foot">${esc(CONFIG.footer)}</div>`;
+    stage.innerHTML = h;
+}
+
+fetch('/api/matchdata').then(r => r.json()).then(d => { data = d; render(); });
+fetch('/api/matchdraft').then(r => r.json()).then(d => { draft = d.draftdata || d; render(); }).catch(() => {});
+function connect() {
+    const ws = new WebSocket(`ws://${location.host}`);
+    ws.onmessage = e => { const m = JSON.parse(e.data); if (m.type === 'matchdata_update') { data = m.data; render(); }
+        else if (m.type === 'draftdata_update' && m.data) { draft = m.data; render(); } };
+    ws.onclose = () => setTimeout(connect, 1500);
+}
+connect();
+</script>
+</body>
+</html>

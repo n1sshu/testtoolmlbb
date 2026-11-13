@@ -1,0 +1,880 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --gold: #C8A84B;
+    --gold-light: #e2c97e;
+    --dark-bg: #0E1318;
+    --panel-bg: #141C24;
+    --panel-mid: #1A2530;
+    --accent-teal: #00C8C8;
+    --accent-red: #C8003A;
+    --text-white: #FFFFFF;
+    --text-muted: #8A9BAD;
+    --border: rgba(200,168,75,0.3);
+    --blue-team: #1B6FA8;
+    --red-team: #A81B1B;
+
+    /* Color of the filler block between the two ban groups, above the
+       center panel. Change this one value to recolor it. */
+    --ban-center-fill: #141C24;
+}
+@font-face {
+    font-family: 'myfonts';
+    src: url('Assets/Font/custom_font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+body {
+    font-family: 'myfonts', sans-serif;
+    width: 1920px;
+    overflow: hidden;
+}
+
+/* ═══ TOP BAR ═══ */
+.top-bar {
+    width: 1920px;
+    height: 40px;
+    background: #0D1117;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.top-bar .sep { color: var(--gold); opacity: 0.5; }
+.top-bar .highlight { color: var(--gold-light); }
+
+/* ═══ BAN ROW ═══
+   No background panel/header — just the ban portraits sitting directly
+   above the picks row. Each side matches the 720px width of the
+   pick columns below it (.lowerside), with a center gap matching
+   the center-panel width so the bans line up exactly with the picks. */
+.ban-row {
+    width: 1920px;
+    height: 80px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.banholder {
+    width: 720px;
+    height: 70px;
+    display: flex;
+}
+
+/* ═══ BAN CENTER — phase arrows + phase name ═══ */
+.ban-row-center {
+    flex: 1;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.phase-arrow-ban {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 100%;
+}
+
+.phase-arrow-ban-text {
+    font-family: 'myfonts', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffffff;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.arrow-left-ban,
+.arrow-right-ban {
+    display: none; /* toggled via .right / .both on .phase-arrow-ban, same as phase-arrow-center */
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+/* Default (blue turn): only left arrow group shows */
+.phase-arrow-ban:not(.right):not(.both) .arrow-left-ban { display: flex; }
+
+/* .right toggled: only right arrow group shows */
+.phase-arrow-ban.right .arrow-right-ban { display: flex; }
+
+/* .both toggled (adjustment phase): hide both, matches phase-arrow-center behavior */
+.phase-arrow-ban.both .arrow-left-ban,
+.phase-arrow-ban.both .arrow-right-ban { display: none; }
+
+/* Open chevron marks (‹ / ›) — corner-border trick, rotated to point left or right.
+   Sized small → large; every chevron shares the same pulse timing with no delay
+   so all three on a side (and both sides) animate simultaneously. */
+.chevron {
+    display: inline-block;
+    border-style: solid;
+    border-color: #ffffff;
+    animation: chevronPulse 1.1s ease-in-out infinite;
+}
+
+.arrow-left-ban .chevron  { transform: rotate(135deg); }
+.arrow-right-ban .chevron { transform: rotate(-45deg); }
+
+.chevron-sm { padding: 4px; border-width: 0 3px 3px 0; }
+.chevron-md { padding: 6px; border-width: 0 4px 4px 0; }
+.chevron-lg { padding: 8px; border-width: 0 5px 5px 0; }
+
+@keyframes chevronPulse {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 1;   }
+}
+
+.banhero {
+    flex: 1;
+    min-width: 0;
+    height: 70px;
+    position: relative;
+    overflow: hidden;
+}
+.banholder-left .banhero:first-child { border-left: none; }
+.banholder-right .banhero:last-child { border-right: none; }
+
+.image-box {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-color: #0E1318;
+    border: none;
+}
+.banhero::before {
+    content: 'X';
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    animation: breathe 1.5s infinite alternate;
+    overflow: hidden;
+}
+.image-box img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 2s ease-in-out, opacity 2s;
+    filter: grayscale(1);
+    z-index: 5;
+}
+
+.box {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.ban0 {
+    display: flex; align-items: center; justify-content: center;
+}
+.ban0::after {
+    font-size: 30px;
+    font-weight: 500;
+    content: "X";
+    color: var(--accent-teal);
+}
+
+.teamnameholder1,
+.teamnameholder2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #5BA8E0;
+}
+.teamnameholder2 { color: #E05B5B; }
+
+.gold-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
+}
+
+/* ═══ TIMER STRIP — between ban and picks ═══ */
+.timer-strip {
+    width: 1920px;
+    height: 13px;
+    background: #0D1117;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    position: relative;
+}
+
+.timer-bar-wrap {
+    width: 1920px;
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.timer-bar-fill {
+    height: 100%;
+    width: 65%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.arrowbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.arrowbox img {
+    height: 85px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) saturate(100%) invert(79%) sepia(37%) saturate(2283%) hue-rotate(352deg) brightness(99%) contrast(105%);
+}
+
+/* ═══ MAIN SECTION (lower) ═══ */
+.lower {
+    width: 1920px;
+    height: 320px;
+    display: flex;
+}
+
+.lowerside {
+    width: 720px;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+.pickholder {
+    width: 720px;
+    height: 260px;
+    display: flex;
+    overflow: hidden;
+}
+
+.heropick {
+    flex: 1;
+    min-width: 0;
+    height: 260px;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    background: #0E1318;
+    flex-shrink: 1;
+    /* Smoother spring expand / clean ease-out retract */
+    transition: flex 0.7s cubic-bezier(0.34, 1.2, 0.64, 1),
+                box-shadow 0.7s ease;
+}
+.heropick:first-child { border-left: none; }
+
+.heropick .image-box {
+    inset: 0;
+    width: 100%; height: 100%;
+    border: none;
+    background: transparent;
+}
+.heropick .image-box img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0;
+    transform: translateY(150%);
+    transition: transform 2s ease-in-out, opacity 1.5s;
+    filter: none;
+    z-index: 4;
+    position: absolute;
+}
+
+.image-box.show img {
+    transform: translateX(0%);
+    opacity: 1;
+    position: absolute;
+}
+
+.heropick::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: linear-gradient(transparent, rgba(10,15,20,0.95));
+    pointer-events: none;
+    z-index: 2;
+}
+
+.lowerside:first-child .heropick::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--blue-team), transparent);
+    z-index: 3;
+}
+.lowerside:last-child .heropick::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--red-team), transparent);
+    z-index: 3;
+}
+
+.pick {
+    background: transparent;
+}
+
+.lanelogo {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.lanelogo bluelane { color: var(--blue-team); }
+
+
+.lane-icon { width: 59px; height: 59px;  filter: brightness(0) invert(1); }
+
+.name-image-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.name-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    opacity: 0.85;
+    filter: none;
+}
+
+.nickholder {
+    width: 720px;
+    height: 60px;
+    display: flex;
+}
+.lowerside:last-child .nickholder { flex-direction: row-reverse; }
+
+.playername {
+    flex: 1;
+    min-width: 0;
+    height: 60px;
+    background: #111820;
+    border-right: 1px solid rgba(255,255,255,0.2);
+    border-top: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-white);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    /* Match heropick transition curve */
+    transition: flex 0.7s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+/* ─── Center panel ─── */
+.center-panel {
+    flex: 1;
+    height: 320px;
+    background: linear-gradient(to right, #070d3b, #450608); 
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Tournament logo strip at top */
+.center-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px 0 18px;
+    flex-shrink: 0;
+}
+
+.center-match-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+.center-match-info span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    line-height: 1.2;
+}
+
+.tourlogo {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(Assets/Other/eod_logo_nobg_white.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+}
+.monarchylogo {
+    width: 125px;
+    height: 125px;
+    display: flex;
+    margin: 20px 70px 20px 0;
+    filter: brightness(0) invert(1);
+    align-items: center;
+    justify-content: center;
+    background-image: url(Assets/Other/monarchy_logo_nobg.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+/* Divider line under logo area */
+.center-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* Main matchup row — teams + arrow */
+.matchup-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+    padding: 0 10px;
+    flex: 1;
+    position: relative; /* positioning context for .phase-arrow-center */
+}
+
+.team-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    width: 50%;
+}
+.team-block.blue { justify-content: flex-end; }
+.team-block.red  { justify-content: flex-start; }
+
+.team-logo-block {
+    width: 318px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+.team-logo-block img {
+    width: 120px; height: 120px;
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+}
+
+.team-abbr {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--text-white);
+}
+.team-block.blue .team-abbr { color: #5BA8E0; }
+.team-block.red  .team-abbr { color: #E05B5B; }
+
+/* ═══ ARROW + FIXED-CENTER TIMER ═══
+   The timer is absolutely centered on .matchup-row and never moves.
+   The left/right arrows are separate elements positioned at a fixed
+   offset from that same center point, so toggling which arrow is
+   visible never nudges the timer. */
+
+.phase-arrow-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 45px;
+    pointer-events: none;
+}
+
+.phase-arrow-timer {
+    position: absolute;
+    inset: 0;                 /* spans the full matchup-row */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'myfonts', sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #eaff81;
+    pointer-events: none;
+}
+
+.arrow-left,
+.arrow-right {
+    position: absolute;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+    display: none; /* shown only via state classes below */
+}
+
+.arrow-left {
+    right: calc(50% + 45px);
+    border-right: 34px solid var(--accent-red);
+    animation: shift-left 1.2s infinite ease-in-out;
+}
+
+.arrow-right {
+    left: calc(50% + 45px);
+    border-left: 34px solid var(--accent-teal);
+    animation: shift-right 1.2s infinite ease-in-out;
+}
+
+/* Default (blue turn): only left arrow shows */
+.phase-arrow-center:not(.right):not(.both) .arrow-left { display: block; }
+
+/* .right toggled: only right arrow shows */
+.phase-arrow-center.right .arrow-right { display: block; }
+
+/* .both toggled: both arrows show, pointing inward at the timer */
+.phase-arrow-center.both .arrow-left,
+.phase-arrow-center.both .arrow-right { display: none; }
+
+@keyframes shift-left {
+    0%   { opacity: 0.4; transform: translateY(-50%) translateX(5px); }
+    50%  { opacity: 1;   transform: translateY(-50%) translateX(-8px); }
+    100% { opacity: 0.4; transform: translateY(-50%) translateX(5px); }
+}
+@keyframes shift-right {
+    0%   { opacity: 0.4; transform: translateY(-50%) translateX(-5px); }
+    50%  { opacity: 1;   transform: translateY(-50%) translateX(8px); }
+    100% { opacity: 0.4; transform: translateY(-50%) translateX(5px); }
+}
+
+/* Score lines (replaces numeric score) */
+.score-lines {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+.score-line {
+    width: 22px;
+    height: 5px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.score-line.active {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Score row at bottom */
+.center-bottom {
+    width: 100%;
+    height: 48px;
+    background: rgba(0,0,0,0.25);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    flex-shrink: 0;
+    padding: 0 14px;
+}
+
+.score-team-label {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-white);
+    text-transform: uppercase;
+}
+
+/* Hide old timer-block */
+.timer-block { display: none; }
+.matchup-block { display: none; }
+.score-block   { display: none; }
+
+/* Audio button */
+.audiob {
+    position: fixed;
+    bottom: 8px;
+    right: 12px;
+    background: var(--gold);
+    color: #0E1318;
+    border: none;
+    padding: 4px 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    z-index: 100;
+}
+
+/* Bottom strip */
+.bottom-strip {
+    width: 1920px;
+    height: 40px;
+    background: #09111A;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+}
+.bottom-strip span {
+    font-size: 13px;
+    color: var(--text-white);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+.bottom-strip .dot {
+    width: 4px; height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.hide { display: none; }
+
+.mainbox {
+    display: flex;
+    flex-direction: column;
+}
+
+.active-ban {
+    background: rgba(180,0,30,0.18);
+    display: flex; align-items: center; justify-content: center;
+    animation: breathe 1.5s infinite alternate;
+    overflow: hidden;
+}
+.active-pick { background-color: rgb(6, 40, 92); color: white; animation: breathe 1.5s infinite alternate; }
+
+@keyframes breathe {
+    0% { transform: scale(1.1); opacity: 0.000001; }
+    100% { transform: scale(1.1); opacity: 0.61; }
+}
+
+.tourlogo {
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(Assets/Other/eod_logo_nobg.png);
+    background-size: 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STAT OVERLAY — 3-PHASE CYCLING
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Outer wrapper */
+.hero-stats-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.76);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 10;
+    pointer-events: none;
+    overflow: hidden;
+}
+.hero-stats-overlay.visible {
+    opacity: 1;
+}
+
+/* Each phase panel — hidden by default, shown via JS display toggle */
+.sop-panel {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    padding: 0 10px;
+}
+
+/* Phase 0: hero name */
+.sop-hero-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #C8A84B;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.15;
+}
+
+/* Hero type / role line — sits below the name */
+.sop-hero-type {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    line-height: 1.2;
+    min-height: 1px;
+}
+
+/* Debut pick badge — hidden by default, shown via JS display toggle in pick panel */
+.sop-debut-badge {
+    display: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #0E1318;
+    background: var(--gold);
+    padding: 6px 16px;
+    border-radius: 3px;
+    text-align: center;
+}
+
+/* Phase 1 & 2: big number */
+.sop-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 60px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    color: #ffffff;
+}
+.sop-green { color: #4ade80; }
+.sop-red   { color: #f87171; }
+
+.sop-stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-align: center;
+    line-height: 1.35;
+}
+.sop-stat-label-debut{
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #87f104;
+    text-align: center;
+    line-height: 1.35;
+}
+
+/* Phase indicator dots */
+.sop-dots {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+.sop-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    transition: background 0.3s ease;
+    display: inline-block;
+}
+.sop-dot.sop-dot-on {
+    background: #C8A84B;
+}
+
+/* ═══ ACTIVE EXPAND ═══ */
+.heropick.active-expand {
+    flex: 1.8;
+    z-index: 20;
+    box-shadow: inset 0 0 0 2px #C8A84B, 0 0 28px rgba(200,168,75,0.25);
+}
+
+.playername.active-expand {
+    flex: 1.8;
+    border-bottom: 2px solid var(--gold-light);
+}
+
+/* shrink font slightly on non-active so text doesn't overflow */
+.nickholder:has(.active-expand) .playername:not(.active-expand) {
+    font-size: 13px;
+}
+
+.timer-adjustment-blink {
+    font-size: 21px;
+    letter-spacing: 1px;
+    margin-right: -1px;   /* cancels the trailing letter-spacing gap so the visible text re-centers */
+    animation: adjustmentPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes adjustmentPulse {
+    0%, 100% { opacity: 1;   transform: scale(1);    }
+    50%      { opacity: 0.35; transform: scale(0.92); }
+}

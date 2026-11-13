@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monarchy Esports — Versus Screen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="versus.css">
+</head>
+<body>
+
+  <div class="stage" id="stage">
+
+    <!-- ambient background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-blue"></div>
+    <div class="bg-glow bg-glow-red"></div>
+
+    <!-- top meta bar -->
+    <div class="meta-bar">
+      <div class="meta-pill" id="meta-tournament">MONARCHY CHAMPIONSHIP</div>
+      <div class="meta-pill meta-pill-accent" id="meta-round">PLAYOFFS · MATCH 1</div>
+      <div class="meta-pill" id="meta-game">GAME 1</div>
+    </div>
+
+    <div class="panels">
+
+      <!-- BLUE SIDE -->
+      <section class="panel panel-blue" id="panel-blue">
+        <div class="panel-bg"></div>
+        <div class="coach-row">
+          <span class="coach-label">COACH</span>
+          <span class="coach-name" id="blue-coach">—</span>
+        </div>
+
+        <div class="roster" id="blue-roster">
+          <!-- 5 player cards injected -->
+        </div>
+
+        <div class="team-id-row">
+          <img class="team-logo" id="blue-logo" src="" alt="" />
+          <div class="team-name-block">
+            <span class="flag" id="blue-flag" aria-hidden="true"></span>
+            <h2 class="team-name" id="blue-name">BLUE TEAM</h2>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER -->
+      <section class="panel-center">
+        <div class="center-mark" id="center-emblem">M</div>
+        <div class="versus-word">VS</div>
+
+        <div class="score-row">
+          <div class="score-pips" id="blue-pips">
+            <span class="pip" data-i="1"></span>
+            <span class="pip" data-i="2"></span>
+            <span class="pip" data-i="3"></span>
+          </div>
+          <div class="region-codes">
+            <span class="region-code" id="blue-region">—</span>
+            <span class="region-divider">/</span>
+            <span class="region-code" id="red-region">—</span>
+          </div>
+          <div class="score-pips" id="red-pips">
+            <span class="pip" data-i="1"></span>
+            <span class="pip" data-i="2"></span>
+            <span class="pip" data-i="3"></span>
+          </div>
+        </div>
+
+        <div class="abbr-row">
+          <span class="abbr" id="blue-abbr">A7N</span>
+          <span class="abbr-score" id="blue-score">0</span>
+          <span class="abbr-sep">:</span>
+          <span class="abbr-score" id="red-score">0</span>
+          <span class="abbr" id="red-abbr">NH</span>
+        </div>
+
+        <div class="presented-by">
+          <span>MONARCHY ESPORTS</span>
+        </div>
+      </section>
+
+      <!-- RED SIDE -->
+      <section class="panel panel-red" id="panel-red">
+        <div class="panel-bg"></div>
+        <div class="coach-row">
+          <span class="coach-name" id="red-coach">—</span>
+          <span class="coach-label">COACH</span>
+        </div>
+
+        <div class="roster" id="red-roster">
+          <!-- 5 player cards injected -->
+        </div>
+
+        <div class="team-id-row">
+          <div class="team-name-block team-name-block-right">
+            <h2 class="team-name" id="red-name">RED TEAM</h2>
+            <span class="flag" id="red-flag" aria-hidden="true"></span>
+          </div>
+          <img class="team-logo" id="red-logo" src="" alt="" />
+        </div>
+      </section>
+
+    </div>
+
+    <!-- connection status (debug, hidden by default) -->
+    <div class="conn-dot" id="conn-dot" title="connection status"></div>
+  </div>
+
+<script src="versus.js"></script>
+</body>
+</html>

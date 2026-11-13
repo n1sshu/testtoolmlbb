@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Selection Display</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #24a9fc;
+            --blue-bright: #6fc7ff;
+            --blue-deep: #07101d;
+            --blue-dark: #030914;
+            --panel: rgba(8, 24, 43, 0.82);
+            --line: rgba(36,169,252,.30);
+            --dim: rgba(167,220,255,.48);
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{width:1920px;height:1080px;overflow:hidden}
+        body{font-family:'Bebas Neue','Rajdhani',sans-serif;background:var(--blue-dark);color:#eef8ff;display:flex;align-items:center;justify-content:center;letter-spacing:1.5px}
+        body:before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 50% -10%,rgba(36,169,252,.20),transparent 35%),radial-gradient(circle at 10% 100%,rgba(20,83,150,.18),transparent 34%),linear-gradient(135deg,#020711 0%,#071326 52%,#030a15 100%);z-index:0}
+        .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(36,169,252,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(36,169,252,.055) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,transparent,black 16%,black 84%,transparent);z-index:0}
+        .vignette{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,.68) 100%);z-index:0}
+        .wrapper{position:relative;z-index:1;width:1740px;height:960px;padding:54px 72px 38px;display:flex;flex-direction:column;align-items:center;border:1px solid rgba(36,169,252,.12);background:linear-gradient(180deg,rgba(5,17,31,.42),rgba(3,10,20,.12));clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px),0 18px)}
+        .wrapper:before,.wrapper:after{content:'';position:absolute;width:110px;height:4px;background:var(--blue);box-shadow:0 0 24px rgba(36,169,252,.75)}
+        .wrapper:before{top:0;left:42px}.wrapper:after{right:42px;bottom:0}
+        h1{font-size:76px;font-weight:400;letter-spacing:18px;color:var(--blue);text-shadow:0 0 18px rgba(36,169,252,.5),0 0 60px rgba(36,169,252,.18);margin-bottom:46px;text-align:center;line-height:.9}
+        h1:after{content:'LIVE MAP DRAFT';display:block;font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:8px;color:rgba(185,229,255,.55);margin-top:18px}
+        .map-container{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;width:100%;flex:1;align-items:center}
+        .map-card{position:relative;border:1px solid var(--line);overflow:hidden;opacity:.58;background:var(--panel);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);transition:transform .35s ease,border-color .35s ease,opacity .4s ease,filter .35s ease;box-shadow:inset 0 0 0 1px rgba(36,169,252,.04)}
+        .map-card:before{content:'';position:absolute;z-index:4;top:0;left:0;width:36px;height:3px;background:var(--blue);opacity:.75}.map-card:after{content:'';position:absolute;z-index:4;right:0;bottom:0;width:36px;height:3px;background:var(--blue);opacity:.75}
+        .map-visual{width:100%;aspect-ratio:1.03/1;position:relative;overflow:hidden}.map-visual img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.82) contrast(1.08) brightness(.78);transform:scale(1.03)}
+        .map-visual:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,9,17,.02) 20%,rgba(3,10,20,.42) 100%),linear-gradient(90deg,rgba(36,169,252,.10),transparent 40%,transparent 60%,rgba(36,169,252,.08))}
+        .map-visual .icon-backdrop{position:absolute;inset:0;background:radial-gradient(ellipse 58% 48% at 50% 50%,rgba(1,8,16,.92),rgba(1,8,16,.42) 54%,transparent 78%);z-index:1}.map-visual .icons{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;filter:drop-shadow(0 0 14px rgba(36,169,252,.18))}
+        .map-card .label{min-height:74px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#040b15,#07182a);padding:14px 18px;font-size:25px;font-weight:400;letter-spacing:5px;color:rgba(205,238,255,.78);border-top:1px solid rgba(36,169,252,.16);transition:color .35s,letter-spacing .35s,text-shadow .35s}
+        .map-card.highlight{opacity:1;transform:translateY(-10px) scale(1.035);border-color:rgba(36,169,252,.95);border-width:3px;box-shadow:0 0 28px rgba(36,169,252,.22),inset 0 0 35px rgba(36,169,252,.08);transition-duration:.1s}.map-card.highlight .label{color:var(--blue-bright)}
+        .map-card.gathering-power{animation:gathering-pulse .85s infinite ease-in-out}@keyframes gathering-pulse{0%,100%{border-color:rgba(36,169,252,.25);opacity:.62}50%{border-color:rgba(36,169,252,.9);opacity:1;box-shadow:0 0 22px rgba(36,169,252,.18)}}
+        .has-result .map-card:not(.selected):not(.charging-up){opacity:.16;transform:scale(.96);filter:saturate(.15) brightness(.5) blur(.3px)}
+        .map-card.charging-up{opacity:1;border-color:var(--blue);border-width:4px;animation:charge-up 1s ease-in-out forwards;box-shadow:0 0 50px rgba(36,169,252,.38),inset 0 0 30px rgba(36,169,252,.12)}@keyframes charge-up{0%{transform:scale(1.04) translateY(-5px)}60%{transform:scale(1.095)}100%{transform:scale(1.045)}}
+        .map-card.selected{opacity:1;transform:scale(1.045);border-color:var(--blue);border-width:4px;box-shadow:0 0 40px rgba(36,169,252,.28),inset 0 0 26px rgba(36,169,252,.08)}.map-card.selected .label{color:var(--blue);letter-spacing:5.5px;text-shadow:0 0 12px rgba(36,169,252,.35)}
+        .footer{width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:38px;padding-top:22px;border-top:1px solid rgba(36,169,252,.18);font-size:14px;letter-spacing:3px;color:var(--dim)}.footer-logo{font-size:17px;font-weight:700;letter-spacing:4px;color:rgba(36,169,252,.85);display:flex;align-items:center;gap:10px}.footer-logo svg{width:24px;height:24px;opacity:.9}.footer-info{display:flex;align-items:center}.footer-info span{padding:0 18px;border-left:1px solid rgba(36,169,252,.2)}.footer-info span:first-child{border-left:none}
+        @media(max-width:1919px){html,body{width:100vw;height:100vh}.wrapper{width:90vw;height:90vh}}
+    
+/* FULLSCREEN 1920x1080 RED + BLUE BROADCAST OVERRIDE */
+:root {
+  --bg: #030713;
+  --blue: #24a9fc;
+  --blue-glow: rgba(36,169,252,.65);
+  --red: #ff294d;
+  --red-glow: rgba(255,41,77,.55);
+}
+html, body { width:1920px; height:1080px; min-width:1920px; min-height:1080px; overflow:hidden; }
+body {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(36,169,252,.16), transparent 34%),
+    radial-gradient(circle at 85% 85%, rgba(255,41,77,.15), transparent 38%),
+    linear-gradient(135deg,#02050d 0%,#071329 52%,#11040b 100%);
+}
+.grid-bg { background-image: linear-gradient(rgba(36,169,252,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(36,169,252,.055) 1px,transparent 1px); background-size:48px 48px; }
+.vignette { background: radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,.72) 100%); }
+.wrapper { width:100%; max-width:none; height:100%; padding:78px 105px 55px; justify-content:space-between; }
+.wrapper:before,.wrapper:after { content:''; position:fixed; pointer-events:none; z-index:0; }
+.wrapper:before { inset:24px; border:1px solid rgba(36,169,252,.22); clip-path:polygon(0 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%); }
+.wrapper:after { top:24px; left:24px; right:24px; height:3px; background:linear-gradient(90deg,var(--blue) 0 42%,transparent 42% 58%,var(--red) 58% 100%); box-shadow:0 0 22px var(--blue-glow),0 0 22px var(--red-glow); }
+h1 { position:relative; z-index:1; font-size:82px; letter-spacing:18px; margin:0 0 48px; color:#f3f8ff; text-shadow:0 0 22px rgba(36,169,252,.4); }
+h1:after { content:''; display:block; width:420px; height:5px; margin:22px auto 0; background:linear-gradient(90deg,var(--blue) 0 46%,#fff 46% 54%,var(--red) 54% 100%); box-shadow:0 0 18px var(--blue-glow); }
+.map-container { position:relative; z-index:1; grid-template-columns:repeat(4,1fr); gap:34px; flex:1; align-items:center; }
+.map-card { border:2px solid rgba(36,169,252,.34); background:linear-gradient(160deg,rgba(8,21,43,.95),rgba(4,7,17,.98)); opacity:.78; box-shadow:inset 0 0 30px rgba(36,169,252,.04); }
+.map-card:nth-child(even) { border-color:rgba(255,41,77,.30); }
+.map-visual { aspect-ratio:16/18; }
+.map-visual:after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 45%,rgba(2,5,13,.72) 100%); pointer-events:none; }
+.map-visual .icon-backdrop,.map-visual .icons { display:none !important; }
+.map-card .label { position:relative; z-index:2; background:linear-gradient(90deg,#071b34,#080d1b); padding:18px 20px 16px; font-size:24px; color:#dbeeff; border-top:2px solid rgba(36,169,252,.35); text-align:center; }
+.map-card:nth-child(even) .label { border-top-color:rgba(255,41,77,.35); }
+.map-card.highlight { border-color:var(--blue); box-shadow:0 0 28px var(--blue-glow), inset 0 0 40px rgba(36,169,252,.12); }
+.map-card.highlight:nth-child(even) { border-color:var(--red); box-shadow:0 0 28px var(--red-glow), inset 0 0 40px rgba(255,41,77,.10); }
+.map-card.charging-up,.map-card.selected { border-color:#fff; box-shadow:0 0 0 3px var(--blue),0 0 0 6px var(--red),0 0 36px rgba(36,169,252,.6),0 0 36px rgba(255,41,77,.45); }
+.map-card.selected .label { color:#fff; letter-spacing:4px; text-shadow:0 0 12px var(--blue-glow); }
+.footer { position:relative; z-index:1; margin-top:32px; padding:18px 24px; border-top:1px solid rgba(36,169,252,.28); background:linear-gradient(90deg,rgba(36,169,252,.08),rgba(255,41,77,.06)); font-size:17px; }
+.footer-logo { color:var(--blue); }
+.footer-info span:last-child { color:var(--red); }
+
+</style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="vignette"></div>
+
+    <div class="wrapper">
+        <h1>MAP CONDITION</h1>
+
+        <div class="map-container" id="mapContainer">
+
+            <!-- BROKEN WALLS -->
+            <div class="map-card" id="map-Broken_Wall">
+                <div class="map-visual">
+                    <img src="Assets/map/Broken Wall.png" alt="Broken Wall">
+                    <div class="icon-backdrop"></div>
+                    <div class="icons"></div>
+                </div>
+                <div class="label">BROKEN WALLS</div>
+            </div>
+
+            <!-- DANGEROUS GRASS -->
+            <div class="map-card" id="map-Dangereous_Grass">
+                <div class="map-visual">
+                    <img src="Assets/map/Dangereous Grass.png" alt="Dangerous Grass">
+                    <div class="icon-backdrop"></div>
+                    <div class="icons"></div>
+                </div>
+                <div class="label">DANGEROUS GRASS</div>
+            </div>
+
+            <!-- EXPANDING RIVERS -->
+            <div class="map-card" id="map-Expanding_River">
+                <div class="map-visual">
+                    <img src="Assets/map/Expanding River.png" alt="Expanding River">
+                    <div class="icon-backdrop"></div>
+                    <div class="icons"></div>
+                </div>
+                <div class="label">EXPANDING RIVERS</div>
+            </div>
+
+            <!-- FLYING CLOUD -->
+            <div class="map-card" id="map-Flying_Cloud">
+                <div class="map-visual">
+                    <img src="Assets/map/Flying Cloud.png" alt="Flying Cloud">
+                    <div class="icon-backdrop"></div>
+                    <div class="icons"></div>
+                </div>
+                <div class="label">FLYING CLOUD</div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <div class="footer-logo">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                </svg>
+                SURGE EUROPE
+            </div>
+            <div class="footer-info">
+                <span>SURGE PRO LEAGUE EMEA S1</span>
+                <span>PLAYOFFS</span>
+                <span>SINGLE ELIMINATION</span>
+                <span>QUARTER FINALS</span>
+                <span>BEST OF 3</span>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const mapContainer = document.getElementById('mapContainer');
+        const mapCards = Array.from(document.querySelectorAll('.map-card'));
+        const maps = [
+            { id: 'map-Broken_Wall',      name: 'Broken Wall' },
+            { id: 'map-Dangereous_Grass', name: 'Dangerous Grass' },
+            { id: 'map-Expanding_River',  name: 'Expanding River' },
+            { id: 'map-Flying_Cloud',     name: 'Flying Cloud' }
+        ];
+
+        let animationFrameId;
+
+        function safeReset() {
+            cancelAnimationFrame(animationFrameId);
+            mapContainer.classList.remove('is-animating', 'has-result');
+            mapCards.forEach(c => c.classList.remove('highlight', 'selected', 'charging-up', 'gathering-power'));
+        }
+
+        function showFinalResult(resultName) {
+            const key = resultName.replace(/ /g, '_');
+            const finalCard = document.getElementById(`map-${key}`);
+            mapContainer.classList.remove('is-animating');
+            mapContainer.classList.add('has-result');
+            if (finalCard) {
+                finalCard.classList.remove('highlight');
+                finalCard.classList.add('charging-up');
+                finalCard.addEventListener('animationend', () => {
+                    finalCard.classList.remove('charging-up');
+                    finalCard.classList.add('selected');
+                }, { once: true });
+            }
+        }
+
+        function startAnimation(targetResult) {
+            safeReset();
+            mapContainer.classList.add('is-animating');
+
+            const finalIndex = maps.findIndex(m => m.name === targetResult);
+            const duration = 8000;
+            const totalRevolutions = 35;
+            const targetPosition = (totalRevolutions * maps.length) + finalIndex + 0.5;
+            const easeInOutQuint = t => t < 0.5 ? 16*t*t*t*t*t : 1 - Math.pow(-2*t+2,5)/2;
+
+            let startTime = null;
+            let lastIdx = -1;
+
+            function loop(now) {
+                if (!startTime) startTime = now;
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = easeInOutQuint(progress);
+                const idx = Math.floor(eased * targetPosition) % maps.length;
+
+                if (elapsed < 2000) {
+                    if (!mapCards[0].classList.contains('gathering-power'))
+                        mapCards.forEach(c => c.classList.add('gathering-power'));
+                } else {
+                    if (mapCards[0].classList.contains('gathering-power'))
+                        mapCards.forEach(c => c.classList.remove('gathering-power'));
+                    if (idx !== lastIdx) {
+                        if (lastIdx > -1) mapCards[lastIdx].classList.remove('highlight');
+                        mapCards[idx].classList.add('highlight');
+                        lastIdx = idx;
+                    }
+                }
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(loop);
+                } else {
+                    setTimeout(() => showFinalResult(targetResult), 500);
+                }
+            }
+            animationFrameId = requestAnimationFrame(loop);
+        }
+
+        // ── SERVER CONNECTION ──
+        fetch('/api/mapdraw')
+            .then(res => res.json())
+            .then(data => {
+                const state = data.drawdata;
+                if (state.status === 'finished' || state.status === 'drawing') {
+                    showFinalResult(state.result);
+                }
+            })
+            .catch(err => console.error('Error loading initial state:', err));
+
+        const socketProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const ws = new WebSocket(`${socketProtocol}//${window.location.host}`);
+
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            if (message.type === 'mapdraw_update') {
+                const newState = message.data;
+                if (newState.status === 'drawing') startAnimation(newState.result);
+                else if (newState.status === 'idle') safeReset();
+            }
+        };
+
+        ws.onopen = () => console.log('Connected to MapDraw WebSocket');
+    </script>
+</body>
+</html>

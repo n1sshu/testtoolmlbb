@@ -1,0 +1,374 @@
+@font-face {
+    font-family: 'myfonts';
+    src: url('Assets/Font/custom_font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ══════════════════════════════════════
+   BASE — identical to your original
+══════════════════════════════════════ */
+:root {
+    --primarycolor: #fff;
+}
+
+body {
+    font-family: 'myfonts', sans-serif;
+}
+
+.hide {
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+}
+
+.mainbox {
+    width: 1920px;
+    height: 1080px;
+    background-color: aqua;
+    background-image: url(Assets/Other/full.png);
+}
+
+/* ══ UPPER ══ */
+.upper {
+    width: 1920px;
+    height: 239px;
+    display: flex;
+}
+
+.logoteam {
+    width: 249px;
+    height: 239px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: 100%;
+}
+
+.logoteam img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+.teamnameblue {
+    width: 711px;
+    height: 239px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    font-size: 70px;
+    color: #ffffff;
+}
+
+.teamnamered {
+    width: 711px;
+    height: 239px;
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    font-size: 70px;
+    color: #ffffff;
+}
+
+/* ══ MIDDLE ══ */
+.middle {
+    width: 1920px;
+    height: 582px;
+    background-color: rgba(21, 4, 59, 0.295);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ══ PICK CARDS ══ */
+.pick {
+    width: 176px;
+    height: 543px;
+    background-color: aqua;
+    border: 1px solid #ffffff;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(11);
+    filter: contrast(1.1);
+    margin-left: -50px;
+    position: absolute;
+    z-index: 1;
+}
+
+.name-image-box {
+    position: absolute;
+    z-index: 2;
+}
+
+.name-image-box img {
+    scale: 0.4;
+    margin-top: 400px;
+}
+
+/* ══ PLAYER NICKS ══ */
+.bluenick {
+    width: 800px;
+    font-size: 40px;
+    color: aliceblue;
+    text-shadow: 2px 3px 5px #000000;
+    margin-top: -290px;
+    margin-left: 123px;
+    position: absolute;
+    z-index: 3;
+    rotate: -90deg;
+    letter-spacing: 1px;
+}
+
+.rednick {
+    width: 800px;
+    font-size: 40px;
+    color: aliceblue;
+    text-shadow: 2px 3px 5px #000000;
+    margin-top: -290px;
+    margin-left: -125px;
+    position: absolute;
+    z-index: 3;
+    rotate: -90deg;
+    letter-spacing: 1px;
+}
+
+/* ══ LANE LOGOS ══ */
+.lanelogo {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    z-index: 2;
+    top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bluelane { right: 15px; }
+.redlane  { left: 15px; }
+
+.lanelogo img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    filter: sepia(100%) hue-rotate(210deg) saturate(300%);
+}
+
+.lane-icon {
+    padding: 2px;
+    background-color: var(--primarycolor);
+}
+
+/* ══ LOWER ══ */
+.lower {
+    width: 1900px;
+    height: 239px;
+}
+
+/* ════════════════════════════════════════════════
+   PICKMID — analysis panel replaces the old solid block
+════════════════════════════════════════════════ */
+.pickmid {
+    width: 580px;
+    height: 582px;
+    background-color: black;
+    background-image: url(Assets/Other/midpostdraft.png);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Dark overlay so text reads cleanly over background image */
+.pickmid::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 0;
+}
+
+/* ══ Analysis panel container ══ */
+.analysis-panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    padding: 18px 14px;
+    gap: 10px;
+}
+
+/* ══ Metrics rows (Counter Index + Line Up Rating) ══ */
+.metrics-blue,
+.metrics-red {
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.metric-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+}
+
+.metric-block-right {
+    justify-content: flex-end;
+}
+
+.metric-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.metric-arrow {
+    font-size: 18px;
+    color: #c8102e;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.metric-arrow.positive { color: #4caf50; }
+.metric-arrow.negative { color: #c8102e; }
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.metric-info-right {
+    align-items: flex-end;
+}
+
+.metric-val {
+    font-family: 'myfonts', sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+.metric-label {
+    font-family: 'myfonts', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* ══ Stat bars center section ══ */
+.stats-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sval {
+    font-family: 'myfonts', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    min-width: 36px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.bval { text-align: right; }
+.rval { text-align: left; }
+
+.stat-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.slabel {
+    font-family: 'myfonts', sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.bars {
+    display: flex;
+    gap: 2px;
+}
+
+.bar-track {
+    flex: 1;
+    height: 9px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Center separator line on each track */
+.bar-track:first-child::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+.bar-track:last-child::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.bar-fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    border-radius: 1px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Blue bar fills right-to-left (anchored to right) */
+.bfill {
+    right: 0;
+    background: linear-gradient(90deg, rgba(232, 93, 36, 0.35), #e85d24);
+}
+
+/* Red bar fills left-to-right (anchored to left) */
+.rfill {
+    left: 0;
+    background: linear-gradient(90deg, #c8102e, rgba(200, 16, 46, 0.35));
+}

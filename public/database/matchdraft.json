@@ -1,0 +1,80 @@
+{
+  "draftdata": {
+    "timer": "60",
+    "timerRunning": false,
+    "current_phase": 8,
+    "blueside": {
+      "ban": [
+        {
+          "hero": "/Assets/HeroPick/hirara.png"
+        },
+        {
+          "hero": "/Assets/HeroPick/alice.png"
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ],
+      "pick": [
+        {
+          "hero": "/Assets/HeroPick/alice.png"
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ]
+    },
+    "redside": {
+      "ban": [
+        {
+          "hero": "/Assets/HeroPick/argus.png"
+        },
+        {
+          "hero": "/Assets/HeroPick/wanwan.png"
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ],
+      "pick": [
+        {
+          "hero": "/Assets/HeroPick/atlas.png"
+        },
+        {
+          "hero": "/Assets/HeroPick/diggie.png"
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        },
+        {
+          "hero": ""
+        }
+      ]
+    },
+    "timer_running": true
+  }
+}

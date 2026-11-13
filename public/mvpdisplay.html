@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920,height=1080,initial-scale=1.0">
+<title>MVP Display</title>
+
+<style>
+/* Drop a bold geometric font (Montserrat ExtraBold works well) at this path.
+   If the file is missing it falls back to Arial. */
+@font-face{
+    font-family:MVPFont;
+    src:url('Assets/Font/ChakraPetch-Medium.ttf') format('truetype');
+    font-weight:500;
+}
+@font-face{
+    font-family:MVPFont;
+    src:url('Assets/Font/ChakraPetch-Bold.ttf') format('truetype');
+    font-weight:800;
+}
+
+:root{
+    --ink:#060a17;
+    --navy:#0a1022;
+    --panel:#0d1530;
+    --blue:#2f6bff;
+    --blue-deep:#1a44c8;
+    --cyan:#3cc8ff;
+    --ice:#e6efff;
+    --muted:#7d90bb;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{
+    width:1920px;
+    height:1080px;
+    overflow:hidden;
+    background:var(--ink);
+    color:var(--ice);
+    font-family:MVPFont,"Arial Black",Arial,Helvetica,sans-serif;
+}
+
+#main-display{
+    position:relative;
+    width:1920px;
+    height:1080px;
+    overflow:hidden;
+    background:var(--ink);
+}
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+.top-bar{
+    position:absolute;
+    left:0;top:0;
+    width:1920px;height:160px;
+    background:linear-gradient(90deg,#0a1024 0%,#060a17 100%);
+    z-index:20;
+}
+
+.top-title{
+    position:absolute;
+    left:78px;
+    top:0;
+    height:160px;
+    display:flex;
+    align-items:center;
+    font-size:45px;
+    font-weight:800;
+    letter-spacing:.5px;
+    color:#fff;
+    text-transform:uppercase;
+    white-space:nowrap;
+}
+
+
+
+/* Replace Assets/Logo/logo.png with your own logo (transparent PNG, light colours read best on the blue) */
+.top-logo{
+    position:absolute;
+    right:60px;
+    top:24px;
+    height:112px;
+    max-width:460px;
+    width:auto;
+    object-fit:contain;
+    object-position:right center;
+    filter:drop-shadow(0 2px 8px rgba(0,10,60,.45));
+}
+
+/* =========================================================
+   HERO ART (full width, fades into the dark panel on the right)
+   ========================================================= */
+.hero-art{
+    position:absolute;
+    left:0;
+    top:160px;
+    width:1920px;
+    height:757px;
+    z-index:1;
+    overflow:hidden;
+    background:linear-gradient(135deg,#0a1230,#1a3a8a 50%,#3a6fc8);
+}
+
+#hero-art-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+}
+
+.hero-fade{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:
+        radial-gradient(ellipse 520px 560px at 1560px 400px,rgba(47,107,255,.42),transparent 70%),
+        linear-gradient(0deg,rgba(6,10,23,.55),transparent 24%),
+        linear-gradient(90deg,
+            rgba(10,16,34,0) 0%,
+            rgba(10,16,34,0) 38%,
+            rgba(10,16,34,.6) 56%,
+            rgba(10,16,34,.92) 70%,
+            #0a1022 78%,
+            #0a1022 100%);
+}
+
+/* =========================================================
+   PLAYER PHOTO
+   ========================================================= */
+.player-area{
+    position:absolute;
+    left:1240px;
+    top:160px;
+    width:640px;
+    height:670px;
+    z-index:5;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    pointer-events:none;
+}
+
+.player-photo{
+    height:100%;
+    width:auto;
+    max-width:100%;
+    object-fit:contain;
+    object-position:center bottom;
+    display:block;
+    filter:drop-shadow(0 0 28px rgba(47,107,255,.35));
+    animation:playerIn .7s ease-out both;
+}
+
+/* =========================================================
+   NAME PLATE (team logo + nickname)
+   ========================================================= */
+.player-name{
+    position:absolute;
+    left:1218px;
+    top:830px;
+    width:702px;
+    height:87px;
+    z-index:8;
+    display:flex;
+    align-items:stretch;
+    background:linear-gradient(90deg,#1a44c8 0%,#2f6bff 70%,#3a86ff 100%);
+    overflow:hidden;
+}
+
+.player-name .team-logo{
+    width:87px;
+    height:87px;
+    flex:0 0 87px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--ink);
+    border-right:3px solid var(--cyan);
+}
+
+.player-name .team-logo img{
+    width:62px;
+    height:62px;
+    object-fit:contain;
+    display:block;
+}
+
+.player-name .nickname{
+    display:flex;
+    align-items:center;
+    padding-left:40px;
+    font-size:38px;
+    font-weight:800;
+    color:#fff;
+    text-transform:uppercase;
+    white-space:nowrap;
+    text-shadow:0 2px 6px rgba(0,10,60,.5);
+}
+
+/* =========================================================
+   BOTTOM INFO BAR
+   ========================================================= */
+.bottom-bar{
+    position:absolute;
+    left:0;
+    top:917px;
+    width:1920px;
+    height:163px;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    padding:0 70px 0 82px;
+    background:linear-gradient(180deg,#0e1834 0%,#080d1f 100%);
+    border-top:3px solid var(--blue);
+}
+
+.b-sec{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:14px;
+}
+
+.b-label{
+    font-size:18px;
+    font-weight:500;
+    letter-spacing:1.2px;
+    color:var(--muted);
+    text-transform:uppercase;
+    white-space:nowrap;
+}
+
+.b-value{
+    font-size:38px;
+    font-weight:800;
+    line-height:1;
+    color:#fff;
+    white-space:nowrap;
+}
+
+.divider{
+    flex:0 0 2px;
+    height:96px;
+    margin:0 48px;
+    background:linear-gradient(180deg,transparent,var(--blue) 30%,var(--cyan) 70%,transparent);
+}
+
+.sec-hero{width:300px;flex:0 0 300px}
+.sec-hero .b-value{
+    font-size:32px;
+    max-width:300px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.sec-equip{
+    flex:1;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:120px;
+}
+
+.items-bar{
+    display:flex;
+    gap:26px;
+    align-items:center;
+}
+
+/* Lane column: label + icon, shown only when a lane icon loads */
+.lane-sec{
+    display:none;
+    align-items:center;
+}
+
+.lane-icon{
+    width:84px;
+    height:84px;
+    flex:0 0 84px;
+    padding:14px;
+    object-fit:contain;
+    display:block;
+    filter:brightness(0) invert(1);
+}
+
+.item-box{
+    width:84px;
+    height:84px;
+    border-radius:50%;
+    overflow:hidden;
+    background:#111b3a;
+    border:3px solid var(--blue);
+    box-shadow:0 0 14px rgba(47,107,255,.35);
+}
+
+.item-box img{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+}
+
+.sec-stats{
+    flex-direction:row;
+    display:flex;
+    gap:84px;
+}
+
+.sec-stats .b-value{font-size:44px}
+
+@keyframes playerIn{
+    from{opacity:0;transform:translateX(35px)}
+    to{opacity:1;transform:translateX(0)}
+}
+</style>
+</head>
+
+<body>
+<div id="main-display">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-title">MVP of the Game</div>
+        <div class="top-blue"></div>
+        <img class="top-logo" id="top-logo" src="Assets/Other/monarchy_logo_nobg.png" alt="Logo" onerror="this.style.display='none'">
+    </div>
+
+    <!-- HERO ART -->
+    <div class="hero-art">
+        <img id="hero-art-img" src="" alt="Hero">
+        <div class="hero-fade"></div>
+    </div>
+
+    <!-- PLAYER -->
+    <div class="player-area">
+        <img id="mvp-player-photo-img"
+             class="player-photo"
+             src="Assets/player/noplayer.png"
+             alt="Player">
+    </div>
+
+    <!-- NAME PLATE -->
+    <div class="player-name">
+        <div class="team-logo">
+            <img id="team-logo" src="" alt="Team Logo">
+        </div>
+        <div class="nickname" id="mvp-nickname">PLAYER</div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+        <div class="b-sec sec-hero">
+            <div class="b-label">Hero Used</div>
+            <div class="b-value" id="hero-name">-</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sec-equip">
+            <div class="b-sec">
+                <div class="b-label">In-Game Equipment</div>
+                <div class="items-bar" id="mvp-items-container"></div>
+            </div>
+
+            <div class="b-sec lane-sec" id="lane-sec">
+                <div class="b-label">Lane</div>
+                <img class="lane-icon" id="lane-icon" alt="">
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="sec-stats">
+            <div class="b-sec">
+                <div class="b-label">KDA</div>
+                <div class="b-value" id="mvp-kda">0/0/0</div>
+            </div>
+            <div class="b-sec">
+                <div class="b-label">GPM</div>
+                <div class="b-value" id="mvp-gold">0</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const socket = new WebSocket(`ws://${window.location.host}`);
+
+const mainDisplay = document.getElementById('main-display');
+let lastMatchDataString = "";
+let latestMatchData = null;
+let lastRenderKey = "";
+let lastNickname = "";
+
+function normalize(value){
+    return String(value || "").trim().toLowerCase();
+}
+
+function getAssetPath(value){
+    if(!value) return "";
+    return String(value).replace(/\\/g,"/");
+}
+
+/* "Assets/HeroPick/Grock.png" -> "Grock" */
+function nameFromPath(value){
+    const file = String(value).replace(/\\/g,"/").split('/').pop().split('?')[0];
+    let name = file;
+    try{ name = decodeURIComponent(file); }catch(e){}
+    return name.replace(/\.(png|jpg|jpeg|webp)$/i,'');
+}
+
+/* ---------- GPM = total gold / match duration (minutes) ---------- */
+
+/* Key names are matched ignoring case, spaces and punctuation,
+   so "TOTAL GOLD", "total_gold" and "totalGold" all match.
+   If your duration field has a different name, add it here (lowercase, no spaces). */
+const GOLD_KEYS = ['gold','totalgold','goldearned','totalgoldearned','networth'];
+const DURATION_KEYS = ['duration','matchduration','gameduration','matchtime','gametime','gamelength','matchlength','elapsedtime'];
+
+const normKey = k => String(k).toLowerCase().replace(/[^a-z0-9]/g,'');
+
+/* Looks at the object's own keys first, then searches nested objects/arrays. */
+function findValue(obj,keys,depth=0){
+    if(!obj || typeof obj !== 'object' || depth > 6) return undefined;
+
+    for(const k of Object.keys(obj)){
+        const v = obj[k];
+        if(keys.includes(normKey(k)) && v !== null && v !== '' && typeof v !== 'object'){
+            return v;
+        }
+    }
+
+    for(const k of Object.keys(obj)){
+        const v = obj[k];
+        if(v && typeof v === 'object'){
+            const found = findValue(v,keys,depth+1);
+            if(found !== undefined) return found;
+        }
+    }
+
+    return undefined;
+}
+
+/* "12500", "12,500", "12.5K" -> number */
+function parseNumber(value){
+    if(value === undefined || value === null) return NaN;
+    const s = String(value).replace(/,/g,'').trim();
+    const m = s.match(/^(-?[\d.]+)\s*([kK])?$/);
+    if(!m) return NaN;
+    return parseFloat(m[1]) * (m[2] ? 1000 : 1);
+}
+
+/* "25:30", "1:05:30", "25m 30s", "25 min", 1530 (seconds) or 25 (minutes) -> minutes */
+function parseDurationMinutes(value){
+    if(value === undefined || value === null || value === '') return NaN;
+    const s = String(value).trim().toLowerCase();
+
+    if(s.includes(':')){
+        const parts = s.split(':').map(Number);
+        if(parts.some(isNaN)) return NaN;
+        let seconds = 0;
+        for(const p of parts) seconds = seconds * 60 + p;
+        return seconds / 60;
+    }
+
+    const h = s.match(/(\d+(?:\.\d+)?)\s*h/);
+    const m = s.match(/(\d+(?:\.\d+)?)\s*m/);
+    const sec = s.match(/(\d+(?:\.\d+)?)\s*s/);
+    if(h || m || sec){
+        return (h ? parseFloat(h[1]) * 60 : 0) +
+               (m ? parseFloat(m[1]) : 0) +
+               (sec ? parseFloat(sec[1]) / 60 : 0);
+    }
+
+    const n = parseFloat(s);
+    if(isNaN(n)) return NaN;
+    return n >= 100 ? n / 60 : n;
+}
+
+function calculateGpm(mvpData,matchData,stats){
+    const gold = parseNumber(
+        findValue(stats,GOLD_KEYS) ?? findValue(mvpData,GOLD_KEYS)
+    );
+
+    const minutes = parseDurationMinutes(
+        findValue(stats,DURATION_KEYS) ??
+        findValue(mvpData,DURATION_KEYS) ??
+        findValue(matchData,DURATION_KEYS)
+    );
+
+    if(gold > 0 && minutes > 0){
+        return String(Math.round(gold / minutes));
+    }
+
+    // Shows exactly what was missing (open the browser console / OBS interact -> F12)
+    console.warn("GPM not calculated", {
+        gold, minutes,
+        statsKeys:Object.keys(stats || {}),
+        mvpKeys:Object.keys(mvpData || {}),
+        matchDataKeys:Object.keys(matchData || {})
+    });
+
+    return stats.GPM ?? '-';
+}
+
+/* ---------- MATCH DATA ---------- */
+
+async function fetchMatchData(){
+    try{
+        const response = await fetch(
+            'database/matchdatateam.json?t=' + Date.now(),
+            {cache:'no-store'}
+        );
+
+        if(!response.ok) return null;
+
+        const data = await response.json();
+        const currentString = JSON.stringify(data);
+
+        if(currentString !== lastMatchDataString){
+            lastMatchDataString = currentString;
+            latestMatchData = data;
+        }
+
+        return latestMatchData;
+    }catch(error){
+        console.error("Failed to load match data:",error);
+        return latestMatchData;
+    }
+}
+
+function findPlayerInfo(matchData,nickname){
+    if(!matchData || !matchData.teamdata) return null;
+
+    const teams = [
+        {side:"blue",team:matchData.teamdata.blueteam},
+        {side:"red",team:matchData.teamdata.redteam}
+    ];
+
+    const target = normalize(nickname);
+
+    for(const entry of teams){
+        const players = entry.team?.playerlist || [];
+
+        for(const player of players){
+            if(normalize(player.name) === target){
+                return {
+                    side:entry.side,
+                    teamName:entry.team?.teamname || "",
+                    teamLogo:entry.team?.logo || "",
+                    lane:player.lane || ""
+                };
+            }
+        }
+    }
+
+    return null;
+}
+
+/* ---------- MVP ---------- */
+
+async function fetchAndDisplayMvp(){
+    try{
+        const response = await fetch('/api/mvp?t=' + Date.now(),{
+            cache:'no-store'
+        });
+
+        if(!response.ok) return;
+
+        const data = await response.json();
+        await updateMvpDisplay(data.mvp);
+    }catch(error){
+        console.error("Failed to load MVP:",error);
+    }
+}
+
+async function updateMvpDisplay(mvpData){
+    if(!mvpData){
+        mainDisplay.style.display='none';
+        lastRenderKey = "";
+        return;
+    }
+
+    mainDisplay.style.display='block';
+
+    const matchData = await fetchMatchData();
+
+    // skip re-rendering when nothing changed (this runs every 500ms)
+    const renderKey = JSON.stringify(mvpData) + lastMatchDataString;
+    if(renderKey === lastRenderKey) return;
+    lastRenderKey = renderKey;
+
+    const stats = mvpData.stats || {};
+    const playerInfo = findPlayerInfo(matchData,mvpData.nickname);
+
+    /* ---------- TEAM LOGO ---------- */
+    const teamLogo = document.getElementById('team-logo');
+    const logoPath =
+        playerInfo?.teamLogo ||
+        mvpData.teamLogo ||
+        "";
+
+    if(logoPath){
+        teamLogo.src = getAssetPath(logoPath);
+        teamLogo.style.display='block';
+    }else{
+        teamLogo.removeAttribute('src');
+        teamLogo.style.display='none';
+    }
+
+    teamLogo.onerror=function(){
+        this.style.display='none';
+    };
+
+    /* ---------- HERO ART ---------- */
+    const heroArt = document.getElementById('hero-art-img');
+    let heroPath =
+        getAssetPath(mvpData.heroImg) ||
+        getAssetPath(mvpData.heroArt) ||
+        "";
+
+    // The API may provide either an image path or just the hero name.
+    // Example: "Moskov" -> Assets/HeroPick/Moskov.png
+    if(heroPath && !/[\\/]/.test(heroPath) && !/\.(png|jpg|jpeg|webp)$/i.test(heroPath)){
+        heroPath = `Assets/HeroPick/${encodeURIComponent(heroPath)}.png`;
+    }
+
+    /* ---------- HERO NAME ----------
+       Uses an explicit name field if there is one, otherwise it is
+       taken from the hero image filename (Assets/HeroPick/Grock.png -> Grock). */
+    const heroName =
+        mvpData.heroName ||
+        mvpData.hero ||
+        stats.HERO ||
+        stats['HERO NAME'] ||
+        (mvpData.heroImg ? nameFromPath(mvpData.heroImg) : "") ||
+        (mvpData.heroArt ? nameFromPath(mvpData.heroArt) : "");
+
+    document.getElementById('hero-name').textContent =
+        heroName ? nameFromPath(heroName) : "-";
+
+    if(heroPath){
+        heroArt.src = heroPath;
+        heroArt.style.display='block';
+    }else{
+        heroArt.removeAttribute('src');
+        heroArt.style.display='none';
+    }
+
+    heroArt.onerror=function(){
+        this.style.display='none';
+    };
+
+    /* ---------- PLAYER PHOTO ---------- */
+    const playerPhoto = document.getElementById('mvp-player-photo-img');
+
+    playerPhoto.src =
+        getAssetPath(mvpData.playerPhoto) ||
+        'Assets/player/noplayer.png';
+
+    playerPhoto.onerror=function(){
+        this.onerror=null;
+        this.src='Assets/player/noplayer.png';
+    };
+
+    /* ---------- TEXT ---------- */
+    document.getElementById('mvp-nickname').textContent =
+        mvpData.nickname || 'PLAYER';
+
+    document.getElementById('mvp-kda').textContent =
+        stats.KDA || '0/0/0';
+
+    document.getElementById('mvp-gold').textContent =
+        calculateGpm(mvpData,matchData,stats);
+
+    /* ---------- SIX ITEMS ---------- */
+    const itemsContainer =
+        document.getElementById('mvp-items-container');
+
+    itemsContainer.innerHTML='';
+
+    for(let i=1;i<=6;i++){
+        const box=document.createElement('div');
+        box.className='item-box';
+
+        const itemName=stats[`ITEM ${i}`];
+
+        if(itemName){
+            const img=document.createElement('img');
+            img.src=`Assets/Itemandspell/${itemName}.png`;
+
+            img.onerror=function(){
+                this.style.display='none';
+            };
+
+            box.appendChild(img);
+        }
+
+        itemsContainer.appendChild(box);
+    }
+
+    /* ---------- LANE ICON ----------
+       Lane comes from the player's `lane` in matchdatateam.json -> Assets/lane/<lane>.png.
+       Hidden when the lane is "none"/empty or the image is missing. */
+    const laneIcon = document.getElementById('lane-icon');
+    const laneSec = document.getElementById('lane-sec');
+    const lane = normalize(playerInfo?.lane || mvpData.lane || stats.LANE);
+
+    laneIcon.removeAttribute('src');
+    laneSec.style.display='none';
+
+    if(lane && lane !== 'none'){
+        laneIcon.onerror=function(){
+            laneSec.style.display='none';
+            this.onerror=null;
+        };
+        laneIcon.onload=function(){
+            laneSec.style.display='flex';
+        };
+        laneIcon.src=`Assets/lane/${lane}.png`;
+    }
+
+    /* replay the player slide-in only when the MVP changes */
+    if(mvpData.nickname !== lastNickname){
+        lastNickname = mvpData.nickname;
+        playerPhoto.style.animation='none';
+        void playerPhoto.offsetWidth;
+        playerPhoto.style.animation='';
+    }
+}
+
+/* ---------- START ---------- */
+
+async function initialize(){
+    await fetchMatchData();
+    await fetchAndDisplayMvp();
+
+    setInterval(async()=>{
+        await fetchAndDisplayMvp();
+    },500);
+}
+
+socket.onopen=()=>{
+    console.log("MVP WebSocket connected");
+    initialize();
+};
+
+socket.onmessage=async(event)=>{
+    try{
+        const msg=JSON.parse(event.data);
+
+        if(msg.type==='mvp_update'){
+            await updateMvpDisplay(msg.data);
+        }
+
+        if(msg.type==='matchdata_update'){
+            await fetchMatchData();
+            await fetchAndDisplayMvp();
+        }
+    }catch(error){
+        console.error("WebSocket message error:",error);
+    }
+};
+
+socket.onclose=()=>{
+    console.warn("MVP WebSocket disconnected. Reloading...");
+    setTimeout(()=>window.location.reload(),3000);
+};
+</script>
+</body>
+</html>

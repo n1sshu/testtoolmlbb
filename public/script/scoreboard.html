@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dangerous Grass — Match Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-neon:#3fe08a;
+    --green-deep:#0b2a1c;
+    --ink:#040907;
+    --paper:#eef4f0;
+    --blue-1:#1b3f73;
+    --blue-2:#0a1d3a;
+    --blue-accent:#f7941d;
+    --red-1:#b6342a;
+    --red-2:#5e1712;
+    --gold:#d8b65a;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html,body{
+    width:100%;
+    height:100%;
+    background:#11140f;
+  }
+
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
+  }
+
+  .stage{
+    width:100%;
+    max-width:1500px;
+    container-type: inline-size;
+  }
+
+  .card{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% -10%, rgba(63,224,138,0.18), transparent 55%),
+      linear-gradient(180deg,#060a07 0%, #03050a 55%, #02040a 100%);
+    box-shadow:0 30px 80px rgba(0,0,0,0.55);
+    color:var(--paper);
+    font-size: 1cqw; /* base unit: 1cqw of card width */
+  }
+
+  /* ---------- decorative diagonal seams ---------- */
+  .seam{
+    position:absolute;
+    top:0; bottom:0;
+    width:6em;
+    background:linear-gradient(180deg, rgba(63,224,138,0.0) 0%, rgba(63,224,138,0.55) 45%, rgba(63,224,138,0.0) 100%);
+    opacity:0.5;
+    transform:skewX(-12deg);
+    pointer-events:none;
+  }
+  .seam.left{ left:35.6%; }
+  .seam.right{ right:35.6%; }
+
+  /* ================= TOP BANNER ================= */
+  .top-banner{
+    position:relative;
+    height:18%;
+    display:flex;
+    align-items:stretch;
+    border-bottom:0.18em solid rgba(63,224,138,0.25);
+  }
+  .top-banner .flank{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3.2em),
+      linear-gradient(100deg,#0c1410 0%,#070b08 60%);
+  }
+  .top-banner .flank::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(115deg, transparent 40%, rgba(63,224,138,0.10) 55%, transparent 70%);
+  }
+  .top-banner .flank .shape{
+    position:absolute;
+    top:8%; bottom:8%;
+    width:13%;
+    background:linear-gradient(160deg,#3a4a44,#13201a);
+    clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
+    opacity:0.85;
+  }
+  .top-banner .flank.left .shape:nth-child(1){ left:4%; }
+  .top-banner .flank.left .shape:nth-child(2){ left:20%; opacity:0.65;}
+  .top-banner .flank.left .shape:nth-child(3){ left:36%; opacity:0.45;}
+  .top-banner .flank.right .shape:nth-child(1){ right:4%; }
+  .top-banner .flank.right .shape:nth-child(2){ right:20%; opacity:0.65;}
+  .top-banner .flank.right .shape:nth-child(3){ right:36%; opacity:0.45;}
+
+  .top-banner .crest{
+    width:28%;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg,#0e2018,#081310);
+    clip-path: polygon(7% 0%, 93% 0%, 100% 50%, 93% 100%, 7% 100%, 0% 50%);
+    box-shadow:0 0 3em rgba(63,224,138,0.25) inset;
+  }
+  .crest .leaf{
+    width:2.6em; height:2.6em;
+    margin-right:0.7em;
+    flex-shrink:0;
+    color:var(--green-neon);
+  }
+  .crest .title{
+    font-family:'Anton',sans-serif;
+    letter-spacing:0.04em;
+    font-size:2.3em;
+    line-height:1;
+    color:#f4fff8;
+    text-shadow:0 0 1.2em rgba(63,224,138,0.55);
+    white-space:nowrap;
+  }
+
+  /* ================= MAIN ROW ================= */
+  .main{
+    position:relative;
+    height:82%;
+    display:flex;
+  }
+
+  /* ---------- side team panels ---------- */
+  .team-panel{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  .team-panel.left{ background:linear-gradient(170deg,var(--blue-1) 0%, var(--blue-2) 100%); }
+  .team-panel.right{ background:linear-gradient(170deg,var(--red-1) 0%, var(--red-2) 100%); }
+
+  .coach-row{
+    height:18%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:0 2.4em;
+  }
+  .team-panel.right .coach-row{ align-items:flex-end; text-align:right; }
+  .coach-name{
+    font-family:'Anton',sans-serif;
+    font-size:2.05em;
+    letter-spacing:0.03em;
+    color:#fff;
+  }
+  .coach-label{
+    font-family:'Oswald',sans-serif;
+    font-size:0.95em;
+    letter-spacing:0.18em;
+    color:rgba(255,255,255,0.6);
+    margin-top:0.2em;
+  }
+
+  .players-row{
+    flex:1;
+    display:flex;
+  }
+  .player{
+    flex:1;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    overflow:hidden;
+    border-right:1px solid rgba(255,255,255,0.06);
+  }
+  .player:last-child{ border-right:none; }
+
+  .player .bg-tag{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%) rotate(-90deg);
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:1.3em;
+    letter-spacing:0.3em;
+    color:rgba(255,255,255,0.06);
+    white-space:nowrap;
+  }
+
+  .player .avatar-wrap{
+    flex:1;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    position:relative;
+  }
+  .team-panel.left .player .avatar-wrap{ background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25)); }
+  .team-panel.right .player .avatar-wrap{ background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25)); }
+
+  .avatar{
+    width:64%;
+    height:78%;
+    color:rgba(255,255,255,0.22);
+  }
+  .team-panel.left .avatar{ color:rgba(247,148,29,0.30); }
+  .team-panel.right .avatar{ color:rgba(216,182,90,0.30); }
+
+  .player .nameplate{
+    padding:0.6em 0.25em;
+    text-align:center;
+    background:rgba(0,0,0,0.28);
+    border-top:2px solid var(--blue-accent);
+    overflow:hidden;
+  }
+  .team-panel.right .player .nameplate{ border-top:2px solid var(--gold); }
+  .player .nameplate span{
+    display:block;
+    font-family:'Oswald',sans-serif;
+    font-weight:600;
+    font-size:0.82em;
+    line-height:1.15;
+    letter-spacing:0.01em;
+    color:#fff;
+    white-space:normal;
+    word-break:break-word;
+  }
+
+  /* ================= CENTER PANEL ================= */
+  .center-panel{
+    width:26%;
+    flex-shrink:0;
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:1.4em 1.2em 1.6em;
+    background:linear-gradient(180deg,#091812 0%, #04090c 60%, #03060a 100%);
+    box-shadow:0 0 4em rgba(0,0,0,0.6);
+  }
+  .center-panel::before{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(80% 60% at 50% 10%, rgba(63,224,138,0.16), transparent 60%);
+    pointer-events:none;
+  }
+
+  .round-block{
+    text-align:center;
+  }
+  .round-block .playoffs{
+    font-family:'Anton',sans-serif;
+    font-size:1.5em;
+    letter-spacing:0.06em;
+    color:var(--green-neon);
+  }
+  .round-block .game{
+    font-family:'Oswald',sans-serif;
+    font-size:0.95em;
+    letter-spacing:0.12em;
+    color:rgba(255,255,255,0.65);
+    margin-top:0.15em;
+  }
+
+  .flags-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:0.6em;
+  }
+  .flag{
+    font-size:1.7em;
+    filter:drop-shadow(0 0.1em 0.2em rgba(0,0,0,0.5));
+  }
+  .center-logo{
+    width:4.6em;
+    height:4.6em;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at 35% 30%, #1b2a22, #050a07 75%);
+    border:1.5px solid rgba(63,224,138,0.45);
+    box-shadow:0 0 1.6em rgba(63,224,138,0.35);
+  }
+  .center-logo svg{ width:60%; height:60%; color:var(--green-neon); }
+
+  .versus-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:0.9em;
+  }
+  .versus-side{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0.35em;
+  }
+  .team-badge{
+    width:3.4em; height:3.4em;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton',sans-serif;
+    font-size:1.15em;
+    color:#fff;
+  }
+  .team-badge.a7n{ background:radial-gradient(circle at 35% 30%,#2c5290,#0c1d3a 75%); border:1.5px solid var(--blue-accent);}
+  .team-badge.nh{ background:radial-gradient(circle at 35% 30%,#7a5c20,#241a08 75%); border:1.5px solid var(--gold);}
+  .team-tag{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:1.05em;
+    letter-spacing:0.08em;
+    color:rgba(255,255,255,0.85);
+  }
+  .score-mid{
+    display:flex;
+    align-items:center;
+    gap:0.25em;
+    font-family:'Anton',sans-serif;
+    font-size:2.1em;
+    color:var(--green-neon);
+    text-shadow:0 0 1em rgba(63,224,138,0.6);
+  }
+  .score-mid svg{ width:0.6em; height:0.6em; }
+
+  .sponsor{
+    display:flex;
+    align-items:center;
+    gap:0.5em;
+    opacity:0.92;
+  }
+  .sponsor svg{ width:1.7em; height:1.7em; }
+  .sponsor span{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    letter-spacing:0.1em;
+    font-size:1.15em;
+    color:#fff;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="card">
+
+    <div class="seam left"></div>
+    <div class="seam right"></div>
+
+    <!-- TOP BANNER -->
+    <div class="top-banner">
+      <div class="flank left">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+      </div>
+      <div class="crest">
+        <svg class="leaf" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7 2 3 6 3 11c0 6 4.5 10 9 11 4.5-1 9-5 9-11 0-5-4-9-9-9zm0 3c2.8 0 5 2.4 5.4 5.5C16.2 9 14.2 8 12 8s-4.2 1-5.4 2.5C7 7.4 9.2 5 12 5z"/></svg>
+        <div class="title">DANGEROUS&nbsp;GRASS</div>
+      </div>
+      <div class="flank right">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- LEFT TEAM -->
+      <div class="team-panel left">
+        <div class="coach-row">
+          <div class="coach-name">SIR ROSE</div>
+          <div class="coach-label">COACH</div>
+        </div>
+        <div class="players-row">
+          <div class="player">
+            <div class="bg-tag">ALPHA7</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>NATHZZ.</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">ALPHA7</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>BESTPLAYER1.</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">ALPHA7</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>COLEWORLD.</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">ALPHA7</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>SHARK.</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">ALPHA7</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>ZIA.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER -->
+      <div class="center-panel">
+        <div class="round-block">
+          <div class="playoffs">PLAYOFFS</div>
+          <div class="game">MATCH 1 · GAME 1</div>
+        </div>
+
+        <div class="flags-row">
+          <span class="flag">🇺🇸</span>
+          <div class="center-logo">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20l4-12 5 8 5-8 4 12H3z"/></svg>
+          </div>
+          <span class="flag">🇨🇦</span>
+        </div>
+
+        <div class="versus-row">
+          <div class="versus-side">
+            <div class="team-badge a7n">A7</div>
+            <div class="team-tag">A7N</div>
+          </div>
+          <div class="score-mid">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 2l-12 10 12 10z"/></svg>
+            <span>33</span>
+          </div>
+          <div class="versus-side">
+            <div class="team-badge nh">NH</div>
+            <div class="team-tag">NH</div>
+          </div>
+        </div>
+
+        <div class="sponsor">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M7 12c1.5-3 8.5-3 10 0M7 12c1.5 3 8.5 3 10 0" /></svg>
+          <span>MOONTON</span>
+        </div>
+      </div>
+
+      <!-- RIGHT TEAM -->
+      <div class="team-panel right">
+        <div class="coach-row">
+          <div class="coach-name">JINU</div>
+          <div class="coach-label">COACH</div>
+        </div>
+        <div class="players-row">
+          <div class="player">
+            <div class="bg-tag">NEMESIS</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>KISLER</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">NEMESIS</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>TAMAAL.</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">NEMESIS</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>SERIE</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">NEMESIS</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>SHIROOOO</span></div>
+          </div>
+          <div class="player">
+            <div class="bg-tag">NEMESIS</div>
+            <div class="avatar-wrap">
+              <svg class="avatar" viewBox="0 0 100 130" fill="currentColor"><circle cx="50" cy="38" r="26"/><path d="M50 70c-26 0-46 16-46 42v18h92v-18c0-26-20-42-46-42z"/></svg>
+            </div>
+            <div class="nameplate"><span>MERLIN</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previous Draft Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'myfonts';
+            src: url('Assets/Font/big_noodle_titling.ttf') format('truetype');
+            font-weight: normal; font-style: normal;
+        }
+
+        :root {
+            --bg-body:        #000000;
+            --bg-panel:       rgba(0, 0, 0, 0.88);
+            --bg-hero:        #0a0a0f;
+            --bg-card:        rgba(0, 255, 255, 0.03);
+
+            --cyan:           #00e5ff;
+            --cyan-dim:       rgba(0, 229, 255, 0.18);
+            --cyan-glow:      rgba(0, 229, 255, 0.55);
+            --cyan-text:      rgba(0, 229, 255, 0.85);
+
+            --c-repick:       #00ff88;
+            --c-repick-bg:    rgba(0, 255, 136, 0.92);
+            --c-stolen:       #ff6b00;
+            --c-stolen-bg:    rgba(255, 107, 0, 0.92);
+            --c-banned:       #ff2244;
+            --c-banned-bg:    rgba(255, 34, 68, 0.92);
+            --c-rebanned:     #990022;
+            --c-rebanned-bg:  rgba(153, 0, 34, 0.92);
+            --c-picked-now:   #00e5ff;
+            --c-picked-bg:    rgba(0, 229, 255, 0.92);
+
+            --border-subtle:  rgba(0, 229, 255, 0.12);
+            --border-mid:     rgba(0, 229, 255, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Rajdhani', 'myfonts', 'Arial Narrow', Arial, sans-serif;
+            color: #fff;
+            background: transparent;
+            width:  1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+
+        /* ── PANEL ──────────────────────── */
+        .camp {
+            display: inline-flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            margin-top: 18px;
+            border: 1px solid var(--border-subtle);
+            position: relative;
+        }
+
+        /* subtle corner accents */
+        .camp::before, .camp::after {
+            content: '';
+            position: absolute;
+            width: 10px; height: 10px;
+            border-color: var(--cyan);
+            border-style: solid;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .camp::before { top: -1px; left: -1px;  border-width: 2px 0 0 2px; }
+        .camp::after  { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .camp .corner-bl, .camp .corner-br {
+            position: absolute;
+            width: 10px; height: 10px;
+            border-color: var(--cyan);
+            border-style: solid;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .camp .corner-bl { bottom: -1px; left: -1px;  border-width: 0 0 2px 2px; }
+        .camp .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        /* ── HEADER ─────────────────────── */
+        .camp-header {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 229, 255, 0.05);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 14px;
+            gap: 8px;
+            position: relative;
+        }
+
+        .camp-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .camp-header span {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9.5px;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--cyan-text);
+            white-space: nowrap;
+        }
+        .camp-header img.team-icon {
+            width: 14px; height: 14px;
+            object-fit: contain;
+            opacity: 0.6;
+        }
+
+        /* ── ROWS ────────────────────────── */
+        .picks {
+            display: flex;
+            gap: 3px;
+            padding: 3px 3px 2px 3px;
+        }
+        .bans {
+            display: flex;
+            gap: 3px;
+            padding: 2px 3px 3px 3px;
+        }
+
+        /* ── PICK CARD ────────────────────── */
+        .picks .hero {
+            width:  90px;
+            height: 120px;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-hero);
+            border: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .picks .hero img.hero-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            margin-top: 0;
+            transform: scale(1.0);
+            display: block;
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter  0.7s ease, opacity 0.7s ease;
+        }
+
+        /* scanline atmosphere */
+        .picks .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 3px,
+                rgba(0,0,0,0.08) 3px,
+                rgba(0,0,0,0.08) 4px
+            );
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .picks .hero .lane-icon {
+            position: absolute;
+            top: 5px; left: 5px;
+            width:  18px; height: 18px;
+            object-fit: contain;
+            z-index: 6;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,1));
+            display: none;
+            pointer-events: none;
+        }
+
+        /* ── BAN CARD ─────────────────────── */
+        .bans .hero {
+            width:  90px;
+            height: 48px;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-hero);
+            border: 1px solid rgba(180, 0, 30, 0.5) !important;
+            flex-shrink: 0;
+            transition: border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .bans .hero img.hero-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 19%;
+            margin-top: 0;
+            transform: scale(1.0);
+            filter: grayscale(100%);
+            display: block;
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 0.7s ease;
+        }
+
+        /* ── STATUS LABEL (text pill on top of hero) ── */
+        .hero .status-label {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 4px 0 5px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 8px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 12;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        /* bottom gradient fade on cards */
+        .picks .hero .fade-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 36px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* ── STATUS CLASSES ───────────────── */
+
+        /* 1. RE-PICKED — green */
+        .hero.re-picked {
+            border-color: var(--c-repick) !important;
+            box-shadow: 0 0 18px rgba(0,255,136,0.35), inset 0 0 20px rgba(0,255,136,0.07);
+        }
+        .hero.re-picked .status-label {
+            background: var(--c-repick-bg);
+            color: #001a09;
+            opacity: 1; transform: translateY(0);
+        }
+        .hero.re-picked img.hero-img { transform: scale(1.08); }
+
+        /* 2. STOLEN — orange */
+        .hero.stolen {
+            border-color: var(--c-stolen) !important;
+            box-shadow: 0 0 18px rgba(255,107,0,0.35), inset 0 0 20px rgba(255,107,0,0.07);
+        }
+        .hero.stolen .status-label {
+            background: var(--c-stolen-bg);
+            color: #1a0500;
+            opacity: 1; transform: translateY(0);
+        }
+        .hero.stolen img.hero-img { transform: scale(1.08); }
+
+        /* 3. BANNED NOW — red */
+        .hero.banned-now {
+            border-color: var(--c-banned) !important;
+            box-shadow: 0 0 18px rgba(255,34,68,0.35), inset 0 0 20px rgba(255,34,68,0.07);
+        }
+        .hero.banned-now .status-label {
+            background: var(--c-banned-bg);
+            color: #fff;
+            opacity: 1; transform: translateY(0);
+        }
+        .hero.banned-now img.hero-img {
+            filter: grayscale(100%) !important;
+            transform: scale(1.0) !important;
+            opacity: 0.6;
+        }
+
+        /* 4. RE-BANNED — dark red */
+        .hero.re-banned {
+            border-color: var(--c-rebanned) !important;
+            box-shadow: 0 0 14px rgba(153,0,34,0.4);
+        }
+        .hero.re-banned .status-label {
+            background: var(--c-rebanned-bg);
+            color: rgba(255,200,200,0.9);
+            opacity: 1; transform: translateY(0);
+        }
+
+        /* 5. PICKED NOW — cyan */
+        .hero.picked-now {
+            border-color: var(--c-picked-now) !important;
+            box-shadow: 0 0 18px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.07);
+        }
+        .hero.picked-now .status-label {
+            background: var(--c-picked-bg);
+            color: #001a1f;
+            opacity: 1; transform: translateY(0);
+        }
+        .bans .hero.picked-now img.hero-img {
+            filter: grayscale(0%) !important;
+            transform: scale(1.08) !important;
+        }
+
+        /* ghost spacer */
+        .ghostbox { flex: 1; }
+
+        /* ── ENTRY ANIMATIONS ────────────────────── */
+
+        @keyframes pulse-stolen {
+            0%   { box-shadow: 0 0 0px rgba(255,107,0,0); }
+            20%  { box-shadow: 0 0 45px rgba(255,107,0,0.95), inset 0 0 40px rgba(255,107,0,0.28); }
+            55%  { box-shadow: 0 0 22px rgba(255,107,0,0.55), inset 0 0 20px rgba(255,107,0,0.12); }
+            100% { box-shadow: 0 0 18px rgba(255,107,0,0.35), inset 0 0 20px rgba(255,107,0,0.07); }
+        }
+        @keyframes img-stolen {
+            0%   { filter: brightness(1) saturate(1); transform: scale(1.0); }
+            15%  { filter: brightness(2.4) saturate(2) sepia(0.4); transform: scale(1.14); }
+            35%  { filter: brightness(1.5) saturate(1.5); transform: scale(1.1); }
+            100% { filter: brightness(1) saturate(1); transform: scale(1.08); }
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            18%     { transform: translateX(-6px); }
+            36%     { transform: translateX(6px); }
+            54%     { transform: translateX(-3px); }
+            72%     { transform: translateX(3px); }
+        }
+
+        @keyframes pulse-repick {
+            0%   { box-shadow: 0 0 0px rgba(0,255,136,0); }
+            20%  { box-shadow: 0 0 45px rgba(0,255,136,0.95), inset 0 0 40px rgba(0,255,136,0.22); }
+            55%  { box-shadow: 0 0 22px rgba(0,255,136,0.55), inset 0 0 22px rgba(0,255,136,0.10); }
+            100% { box-shadow: 0 0 18px rgba(0,255,136,0.35), inset 0 0 20px rgba(0,255,136,0.07); }
+        }
+        @keyframes img-repick {
+            0%   { filter: brightness(1); transform: scale(1.0); }
+            25%  { filter: brightness(2.2) hue-rotate(15deg); transform: scale(1.2); }
+            100% { filter: brightness(1); transform: scale(1.08); }
+        }
+
+        @keyframes pulse-picked {
+            0%   { box-shadow: 0 0 0px rgba(0,229,255,0); }
+            20%  { box-shadow: 0 0 45px rgba(0,229,255,0.95), inset 0 0 40px rgba(0,229,255,0.22); }
+            55%  { box-shadow: 0 0 22px rgba(0,229,255,0.55), inset 0 0 22px rgba(0,229,255,0.10); }
+            100% { box-shadow: 0 0 18px rgba(0,229,255,0.35), inset 0 0 20px rgba(0,229,255,0.07); }
+        }
+        @keyframes img-picked {
+            0%   { filter: grayscale(100%) brightness(0.8); transform: scale(1.0); }
+            25%  { filter: grayscale(0%) brightness(2.2); transform: scale(1.14); }
+            100% { filter: grayscale(0%) brightness(1); transform: scale(1.08); }
+        }
+
+        @keyframes label-pop {
+            0%   { transform: translateY(-10px) scaleX(0.7); opacity: 0; }
+            65%  { transform: translateY(2px) scaleX(1.05); opacity: 1; }
+            100% { transform: translateY(0) scaleX(1); opacity: 1; }
+        }
+
+        /* .animating is added by JS the moment a new status fires */
+        .hero.animating.stolen      { animation: pulse-stolen 1.4s ease forwards; }
+        .hero.animating.stolen img.hero-img {
+            animation: img-stolen 1.0s ease forwards;
+        }
+        .hero.animating.stolen      { animation: pulse-stolen 1.4s ease forwards, shake 0.55s ease 0.05s; }
+
+        .hero.animating.re-picked   { animation: pulse-repick 1.4s ease forwards; }
+        .hero.animating.re-picked img.hero-img { animation: img-repick 1.0s ease forwards; }
+
+        .hero.animating.picked-now  { animation: pulse-picked 1.4s ease forwards; }
+        .hero.animating.picked-now img.hero-img { animation: img-picked 1.0s ease forwards; }
+
+        .hero.animating .status-label {
+            animation: label-pop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.08s both;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT PANEL -->
+    <div class="camp" id="camp1">
+        <div class="corner-bl"></div><div class="corner-br"></div>
+        <div class="camp-header">
+            <span>DRAFT PICK RECAP</span>
+        </div>
+        <div class="picks" id="camp1-picks"></div>
+        <div class="bans"  id="camp1-bans"></div>
+    </div>
+
+    <div class="ghostbox"></div>
+
+    <!-- RIGHT PANEL -->
+    <div class="camp" id="camp2">
+        <div class="corner-bl"></div><div class="corner-br"></div>
+        <div class="camp-header">
+            <span>DRAFT PICK RECAP</span>
+        </div>
+        <div class="picks" id="camp2-picks"></div>
+        <div class="bans"  id="camp2-bans"></div>
+    </div>
+
+<script>
+    let previousDraft = null;
+    let currentDraft  = null;
+
+    const ws = new WebSocket('ws://' + window.location.host);
+    ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if      (msg.type === 'draftdata_update') fetchCurrentData();
+        else if (msg.type === 'analyzer_update')  fetchAllData();
+    };
+
+    function parseTeamData(teamObj) {
+        if (!teamObj) return { name: '', picks: [], bans: [] };
+        const picks = [], bans = [];
+        if (teamObj.playerlist) {
+            teamObj.playerlist.forEach(p => {
+                picks.push({ hero: p.hero    || null, lane: p.lane || null });
+                bans .push({ hero: p.banhero || null });
+            });
+        }
+        return { name: teamObj.teamname || '', picks, bans };
+    }
+
+    async function fetchAllData() {
+        try {
+            const prevRes = await fetch('/database/savedmatch/matchdata1.json');
+            previousDraft = await prevRes.json();
+            await fetchCurrentData();
+        } catch (e) { console.error("Error fetching previous data:", e); }
+    }
+
+    async function fetchCurrentData() {
+        try {
+            const res    = await fetch('/database/matchdatateam.json');
+            currentDraft = await res.json();
+            renderAll();
+        } catch (e) { console.error("Error fetching current draft:", e); }
+    }
+
+    setInterval(fetchCurrentData, 1000);
+
+    let lastLaneDataString = "";
+
+    async function checkForLaneUpdates() {
+        try {
+            const response = await fetch('database/matchdatateam.json?t=' + new Date().getTime());
+            if (!response.ok) return;
+            const data = await response.json();
+            const str  = JSON.stringify(data);
+            if (str === lastLaneDataString) return;
+            lastLaneDataString = str;
+            renderLanes(data);
+        } catch (error) { console.error("Gagal membaca data:", error); }
+    }
+
+    function renderLanes(data) {
+        function updateLaneIcon(elementId, player) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.onerror = null;
+            if (player && player.lane && player.lane !== "none" && player.lane !== "") {
+                const laneName = player.lane.toLowerCase();
+                el.style.display = 'block';
+                el.style.opacity = '1';
+                el.src = `Assets/lane/${laneName}.png`;
+                el.onerror = function () {
+                    this.style.display = 'none';
+                    this.style.opacity = '0';
+                    this.onerror = null;
+                };
+            } else {
+                el.style.display = 'none';
+                el.style.opacity = '0';
+                el.src = '';
+            }
+        }
+
+        if (!currentDraft || !previousDraft) return;
+
+        const curBlue  = parseTeamData(currentDraft.teamdata?.blueteam);
+        const curRed   = parseTeamData(currentDraft.teamdata?.redteam);
+        const prevBlue = parseTeamData(previousDraft.teamdata?.blueteam);
+        const prevRed  = parseTeamData(previousDraft.teamdata?.redteam);
+
+        const swapped = (
+            (prevBlue.name === curRed.name  && prevBlue.name !== "") ||
+            (prevRed.name  === curBlue.name && prevRed.name  !== "")
+        );
+        const left  = swapped ? prevRed  : prevBlue;
+        const right = swapped ? prevBlue : prevRed;
+
+        left .picks.forEach((slot, i) => updateLaneIcon(`player-lane-${i+1}-blue`, slot));
+        right.picks.forEach((slot, i) => updateLaneIcon(`player-lane-${i+1}-red`,  slot));
+    }
+
+    setInterval(checkForLaneUpdates, 500);
+
+    function renderAll() {
+        if (!currentDraft || !previousDraft) return;
+
+        const curBlue  = parseTeamData(currentDraft.teamdata?.blueteam);
+        const curRed   = parseTeamData(currentDraft.teamdata?.redteam);
+        const prevBlue = parseTeamData(previousDraft.teamdata?.blueteam);
+        const prevRed  = parseTeamData(previousDraft.teamdata?.redteam);
+
+        const swapped = (
+            (prevBlue.name === curRed.name  && prevBlue.name !== "") ||
+            (prevRed.name  === curBlue.name && prevRed.name  !== "")
+        );
+        const displayLeft  = swapped ? prevRed  : prevBlue;
+        const displayRight = swapped ? prevBlue : prevRed;
+
+        const currLeftPicks  = curBlue.picks.map(h => h.hero).filter(h => h && h !== "idle");
+        const currRightPicks = curRed .picks.map(h => h.hero).filter(h => h && h !== "idle");
+        const currAllPicks   = [...currLeftPicks, ...currRightPicks];
+        const currAllBans    = [
+            ...curBlue.bans.map(h => h.hero),
+            ...curRed .bans.map(h => h.hero)
+        ].filter(h => h && h !== "idle");
+
+        updateHeroRow('camp1-picks', displayLeft .picks, 'pick', currLeftPicks,  currRightPicks, currAllBans, currAllPicks, 'blue');
+        updateHeroRow('camp1-bans',  displayLeft .bans,  'ban',  [],             [],             currAllBans, currAllPicks, 'blue');
+        updateHeroRow('camp2-picks', displayRight.picks, 'pick', currRightPicks, currLeftPicks,  currAllBans, currAllPicks, 'red');
+        updateHeroRow('camp2-bans',  displayRight.bans,  'ban',  [],             [],             currAllBans, currAllPicks, 'red');
+    }
+
+    function updateHeroRow(containerId, heroList, type, listRePick, listStolen, listBanned, listAllPicks, side) {
+        const container = document.getElementById(containerId);
+
+        let needsRebuild = false;
+        const existingCards = container.querySelectorAll('.hero');
+        if (existingCards.length !== heroList.length) {
+            needsRebuild = true;
+        } else {
+            heroList.forEach((slot, idx) => {
+                if (existingCards[idx].getAttribute('data-original-hero') !== (slot.hero || 'empty')) {
+                    needsRebuild = true;
+                }
+            });
+        }
+
+        if (needsRebuild) {
+            container.innerHTML = '';
+            heroList.forEach((slot, index) => {
+                const card     = document.createElement('div');
+                card.className = 'hero';
+                const heroName = slot.hero;
+                card.setAttribute('data-original-hero', heroName || 'empty');
+
+                // Status label element (text pill at top)
+                const label     = document.createElement('div');
+                label.className = 'status-label';
+                card.appendChild(label);
+
+                if (heroName && heroName !== "idle" && heroName !== "") {
+                    const img     = document.createElement('img');
+                    img.className = 'hero-img';
+                    img.src       = `Assets/HeroPick/${heroName}.jpg`;
+                    img.onerror   = function () { this.style.display = 'none'; };
+                    card.appendChild(img);
+
+                    if (type === 'pick') {
+                        const fadeOverlay     = document.createElement('div');
+                        fadeOverlay.className = 'fade-overlay';
+                        card.appendChild(fadeOverlay);
+
+                        const laneImg     = document.createElement('img');
+                        laneImg.className = 'lane-icon';
+                        laneImg.id        = `player-lane-${index + 1}-${side}`;
+                        laneImg.alt       = '';
+                        card.appendChild(laneImg);
+                    }
+                }
+                container.appendChild(card);
+            });
+        }
+
+        const cards = container.querySelectorAll('.hero');
+        heroList.forEach((slot, index) => {
+            const card     = cards[index];
+            const heroName = slot.hero;
+            if (!heroName || heroName === "idle") return;
+
+            let statusClass = '';
+            let statusLabel = '';
+
+            if (type === 'pick') {
+                if      (listRePick .includes(heroName)) { statusClass = 're-picked';  statusLabel = 'RE-PICKED';  }
+                else if (listStolen .includes(heroName)) { statusClass = 'stolen';     statusLabel = 'STOLEN';     }
+                else if (listBanned .includes(heroName)) { statusClass = 'banned-now'; statusLabel = 'BANNED'; }
+            } else if (type === 'ban') {
+                if      (listBanned  .includes(heroName)) { statusClass = 're-banned';  statusLabel = 'RE-BANNED'; }
+                else if (listAllPicks.includes(heroName)) { statusClass = 'picked-now'; statusLabel = 'PICKED';    }
+            }
+
+            ['re-picked','stolen','banned-now','re-banned','picked-now'].forEach(cls => {
+                if (cls !== statusClass) card.classList.remove(cls);
+            });
+
+            const isNew = statusClass && !card.classList.contains(statusClass);
+            if (statusClass && isNew) {
+                card.classList.add(statusClass);
+                // Trigger animation only for visually impactful statuses
+                if (['stolen','re-picked','picked-now'].includes(statusClass)) {
+                    card.classList.remove('animating');
+                    // Force reflow so removing+re-adding restarts the animation
+                    void card.offsetWidth;
+                    card.classList.add('animating');
+                    // Remove after animation completes so it doesn't block CSS transitions
+                    card.addEventListener('animationend', () => {
+                        card.classList.remove('animating');
+                    }, { once: true });
+                }
+            } else if (!statusClass) {
+                card.classList.remove('animating');
+            }
+
+            const labelEl = card.querySelector('.status-label');
+            if (labelEl) labelEl.textContent = statusLabel;
+        });
+    }
+
+    fetchAllData();
+    checkForLaneUpdates();
+</script>
+</body>
+</html>

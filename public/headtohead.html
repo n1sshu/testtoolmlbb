@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Match Countdown Overlay</title>
+
+<style>
+
+/* =========================================================
+   FONTS
+========================================================= */
+
+@font-face {
+    font-family: 'myfonts';
+    src: url('Assets/Font/custom_font.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+.stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+
+    color: #ffffff;
+
+    background:
+        radial-gradient(
+            circle at 80% 35%,
+            rgba(36,169,252,0.13),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 20% 100%,
+            rgba(36,169,252,0.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #05070b 0%,
+            #0a0e15 45%,
+            #06090e 100%
+        );
+}
+
+
+/* =========================================================
+   BACKGROUND DECORATION
+========================================================= */
+
+.bg-grid {
+    position: absolute;
+    inset: 0;
+
+    opacity: 0.16;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px
+        );
+
+    background-size: 80px 80px;
+
+    pointer-events: none;
+}
+
+
+.blue-glow {
+    position: absolute;
+
+    width: 900px;
+    height: 900px;
+
+    right: -300px;
+    top: 100px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(36,169,252,0.16),
+            transparent 68%
+        );
+
+    filter: blur(50px);
+}
+
+
+/* =========================================================
+   TOP HEADER
+========================================================= */
+
+.top-header {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 245px;
+
+    display: flex;
+
+    z-index: 50;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.08);
+}
+
+
+/* =========================================================
+   COUNTDOWN PANEL
+========================================================= */
+
+.countdown-panel {
+    position: relative;
+
+    width: 690px;
+    height: 245px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #10151e,
+            #070a0f
+        );
+
+    border-right:
+        1px solid rgba(255,255,255,0.07);
+}
+
+
+.countdown-panel::before {
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    left: -250px;
+    top: -140px;
+
+    border-radius: 50%;
+
+    border:
+        70px solid rgba(36,169,252,0.07);
+}
+
+
+.countdown-label {
+    position: absolute;
+
+    left: 42px;
+    top: 104px;
+
+    font-size: 25px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #aeb8c5;
+
+    text-transform: uppercase;
+}
+
+
+.countdown {
+    position: absolute;
+
+    left: 190px;
+    top: 5px;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 165px;
+
+    letter-spacing: -4px;
+
+    color: #ffffff;
+
+    line-height: 1;
+
+    text-shadow:
+        0 0 30px rgba(36,169,252,0.12);
+
+}
+
+
+/* =========================================================
+   BLUE VERTICAL TAG
+========================================================= */
+
+.continues {
+    width: 75px;
+    height: 245px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #24a9fc;
+
+    color: #04111a;
+
+    font-size: 23px;
+
+    font-weight: 900;
+
+    writing-mode: vertical-rl;
+
+    transform: rotate(180deg);
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   EVENT HEADER
+========================================================= */
+
+.event-header {
+    position: relative;
+
+    flex: 1;
+    height: 245px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #10151d,
+            #090d13
+        );
+}
+
+
+.event-header::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #24a9fc,
+            transparent 65%
+        );
+}
+
+
+.event-stage {
+    position: absolute;
+
+    left: 90px;
+    top: 80px;
+
+    font-size: 52px;
+
+    font-weight: 800;
+
+    color: #f4f4f4;
+
+    letter-spacing: 2px;
+}
+
+
+.event-title {
+    position: absolute;
+
+    left: 300px;
+    top: 40px;
+
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 90px;
+
+    letter-spacing: 1px;
+
+    color: #ffffff;
+}
+
+
+.event-title span {
+    color: #24a9fc;
+}
+
+
+.eod-logo {
+    position: absolute;
+
+    right: 50px;
+    top: 28px;
+
+    width: 175px;
+    height: 175px;
+
+    object-fit: contain;
+}
+
+
+/* =========================================================
+   TICKER
+========================================================= */
+
+.ticker {
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 22px;
+
+    overflow: hidden;
+
+    background: rgba(0,0,0,0.35);
+
+    color: #24a9fc;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    white-space: nowrap;
+}
+
+
+.ticker-inner {
+    display: inline-block;
+
+    padding-top: 5px;
+
+    animation:
+        tickerMove 18s linear infinite;
+}
+
+
+@keyframes tickerMove {
+
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-900px);
+    }
+
+}
+
+
+/* =========================================================
+   LEFT MATCH INFORMATION
+========================================================= */
+/* =========================================================
+   LEFT MATCH INFORMATION
+========================================================= */
+
+.match-panel {
+    position: absolute;
+
+    left: 0;
+    top: 245px;
+
+    width: 760px;
+    height: 655px;
+
+    z-index: 20;
+
+    border-right: 1px solid rgba(255,255,255,0.05);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* Everything centered vertically */
+    justify-content: center;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   MATCH TITLE
+========================================================= */
+
+.match-title {
+    position: static;
+
+    width: 100%;
+
+    text-align: center;
+
+    font-size: 36px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    color: #ffffff;
+}
+
+
+.match-title::after {
+    content: "";
+
+    display: block;
+
+    width: 80px;
+    height: 3px;
+
+    margin: 15px auto 0;
+
+    background: #24a9fc;
+}
+
+
+/* =========================================================
+   MATCH FORMAT
+========================================================= */
+
+.match-time {
+    position: static;
+
+    margin-top: 35px;
+
+    padding: 8px 14px;
+
+    background: #24a9fc;
+
+    color: #051019;
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   MATCHUP
+========================================================= */
+
+.matchup {
+    position: static;
+
+    width: 680px;
+
+    margin-top: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+/* =========================================================
+   TEAMS
+========================================================= */
+
+.team {
+    width: 150px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+}
+
+
+.team-logo-wrap {
+    width: 110px;
+    height: 110px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.05),
+            rgba(255,255,255,0.01)
+        );
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+}
+
+
+.team-logo-wrap img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+.team-name {
+    margin-top: 16px;
+
+    width: 170px;
+
+    text-align: center;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    color: #dce4ec;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SCORE
+========================================================= */
+
+.score {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 16px;
+}
+
+
+.score-number {
+    font-family:
+        Impact,
+        "Arial Black",
+        sans-serif;
+
+    font-size: 190px;
+
+    line-height: .7;
+
+    color: #f2f5f7;
+}
+
+
+.score-divider {
+    font-size: 55px;
+
+    color: #24a9fc;
+
+    font-weight: 300;
+}
+
+
+/* =========================================================
+   PLAYER AREA
+
+   overflow:hidden gives the player cutoff effect.
+========================================================= */
+
+.players-area {
+    position: absolute;
+
+    top: 245px;
+    right: 0;
+
+    width: 1220px;
+    height: 655px;
+
+    overflow: hidden;
+
+    z-index: 10;
+}
+
+
+/* =========================================================
+   PLAYER ROTATORS
+========================================================= */
+
+.player-rotator {
+    position: absolute;
+
+    bottom: 0;
+
+    width: 600px;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+
+#rotator-blue {
+    left: 20px;
+}
+
+
+#rotator-red {
+    right: 20px;
+}
+
+
+/* =========================================================
+   PLAYER PHOTO
+========================================================= */
+
+.player-photo {
+    position: absolute;
+
+    left: 50%;
+    bottom: -115px;
+
+    height: 790px;
+
+    width: auto;
+
+    max-width: none;
+
+    transform:
+        translateX(-50%);
+
+    filter:
+        drop-shadow(
+            0 20px 30px rgba(0,0,0,0.65)
+        );
+
+    transition:
+        opacity .4s ease,
+        transform .4s ease;
+
+    animation:
+        playerFloat 6s ease-in-out infinite;
+}
+
+
+#rotator-red-photo {
+    animation-delay: -3s;
+}
+
+
+@keyframes playerFloat {
+
+    0% {
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            translateY(-7px);
+    }
+
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+}
+
+
+/* Existing rotator compatibility */
+
+.player-rotator.rotator-fade-out
+.player-photo {
+
+    opacity: 0;
+
+    transform:
+        translateX(-50%)
+        translateY(30px);
+
+}
+
+
+/* =========================================================
+   PLAYER NAME TAG
+
+   ONLY ONE NAME PER PLAYER.
+========================================================= */
+
+.name-tag {
+    position: absolute;
+
+    left: 50%;
+    bottom: 25px;
+
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 10;
+
+    transition:
+        opacity .4s ease,
+        transform .4s ease;
+}
+
+
+.player-rotator.rotator-fade-out
+.name-tag {
+
+    opacity: 0;
+
+    transform:
+        translateX(-50%)
+        translateY(15px);
+
+}
+
+
+.name-tag-bg {
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 0 30px;
+
+    background:
+        rgba(7,11,16,0.92);
+
+    border:
+        1px solid rgba(255,255,255,0.1);
+
+ 
+}
+
+
+.name-tag-text {
+    font-family:
+        "Arial Black",
+        Arial,
+        sans-serif;
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+    letter-spacing: 3px;
+
+    color: #ffffff;
+
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   LANE ICON
+
+   This is visible again.
+========================================================= */
+
+.name-tag-icon {
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #24a9fc;
+
+    border:
+        1px solid rgba(255,255,255,0.12);
+}
+
+
+.name-tag-icon img {
+    width: 48px;
+    height: 48px;
+
+    object-fit: contain;
+
+    filter:
+        brightness(0)
+        invert(1);
+}
+
+
+/* =========================================================
+   BOTTOM SECTION
+========================================================= */
+
+.bottom-section {
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 180px;
+
+    z-index: 40;
+
+    border-top:
+        1px solid rgba(255,255,255,0.08);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(12,16,23,0.98),
+            rgba(5,7,11,1)
+        );
+}
+
+
+.bottom-line {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #24a9fc 30%,
+            #24a9fc 70%,
+            transparent
+        );
+}
+
+
+/* =========================================================
+   SUPPLIER
+========================================================= */
+
+.supplier {
+    position: absolute;
+
+    left: 80px;
+    top: 38px;
+}
+
+
+.supplier-label {
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #697585;
+
+    margin-bottom: 25px;
+}
+
+
+.supplier-name {
+    font-size: 32px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   AUDIENCE COMMENT
+========================================================= */
+
+.audience-comment {
+    position: absolute;
+
+    left: 760px;
+    top: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 35px;
+}
+
+
+.comment-label {
+    font-size: 14px;
+
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    color: #24a9fc;
+}
+
+
+.comment-user {
+    font-size: 15px;
+
+    color: #7f8b98;
+
+    font-weight: 700;
+}
+
+
+.comment-text {
+    font-size: 22px;
+
+    font-weight: 700;
+
+    color: #dce4ec;
+}
+
+
+/* =========================================================
+   ENTRANCE ANIMATIONS
+========================================================= */
+
+.top-header {
+    animation:
+        headerEnter 1s ease forwards;
+}
+
+
+.match-panel {
+    animation:
+        fadeUp 1s .25s both;
+}
+
+
+.players-area {
+    animation:
+        fadeUp 1s .15s both;
+}
+
+
+.bottom-section {
+    animation:
+        bottomEnter 1s .4s both;
+}
+
+
+@keyframes headerEnter {
+
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+
+}
+
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(35px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+@keyframes bottomEnter {
+
+    from {
+        transform:
+            translateY(100%);
+    }
+
+    to {
+        transform:
+            translateY(0);
+    }
+
+}
+
+/* LEFT PLAYER LANE ICON ON LEFT SIDE */
+#rotator-blue .name-tag-icon {
+    order: 1;
+}
+
+#rotator-blue .name-tag-bg {
+    order: 2;
+}
+#rotator-blue .name-tag-icon {
+    background: #24a9fc;
+
+}
+
+#rotator-red .name-tag-icon {
+    background: #ff3b3b;
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="stage">
+
+    <div class="bg-grid"></div>
+    <div class="blue-glow"></div>
+
+
+    <!-- =====================================================
+         TOP HEADER
+    ====================================================== -->
+
+    <div class="top-header">
+
+
+        <div class="countdown-panel">
+
+            <div class="countdown-label">
+                STARTING IN
+            </div>
+
+         
+
+        </div>
+
+
+        <div class="continues">
+            #ETERNITY
+        </div>
+
+
+        <div class="event-header">
+
+            <div class="event-stage">
+                GRAND FINALS
+            </div>
+
+
+            <div class="event-title">
+            </div>
+
+
+
+            <div class="ticker">
+
+                <div class="ticker-inner">
+
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 • 
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1 •
+                    ETERNAL RIVALS SEASON 1
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         MATCH INFORMATION
+    ====================================================== -->
+
+    <div class="match-panel">
+
+
+        <div class="match-title">
+            UPCOMING MATCH
+        </div>
+
+
+        <div class="match-time">
+            BEST OF 3
+        </div>
+
+
+        <div class="matchup">
+
+
+            <div class="team">
+
+                <div class="team-logo-wrap">
+
+                    <img
+                        id="displayImage1"
+                        src=""
+                        alt=""
+                    >
+
+                </div>
+
+
+                <div
+                    class="team-name"
+                    id="nickblue"
+                >
+                    TEAM A
+                </div>
+
+            </div>
+
+
+
+            <div class="score">
+
+                <div class="score-number">
+                    0
+                </div>
+
+                <div class="score-divider">
+                    -
+                </div>
+
+                <div class="score-number">
+                    0
+                </div>
+
+            </div>
+
+
+
+            <div class="team">
+
+                <div class="team-logo-wrap">
+
+                    <img
+                        id="displayImage2"
+                        src=""
+                        alt=""
+                    >
+
+                </div>
+
+
+                <div
+                    class="team-name"
+                    id="nickred"
+                >
+                    TEAM B
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         PLAYER AREA
+    ====================================================== -->
+
+    <div class="players-area">
+
+
+        <!-- PLAYER ONE -->
+
+        <div
+            class="player-rotator"
+            id="rotator-blue"
+        >
+
+            <img
+                class="player-photo"
+                id="rotator-blue-photo"
+                src="images/zeyrox.png"
+                alt="Player"
+            >
+
+
+            <div class="name-tag">
+
+
+                <div class="name-tag-bg">
+
+                    <span
+                        class="name-tag-text"
+                        id="rotator-blue-name"
+                    >
+                        ZEYROX
+                    </span>
+
+                </div>
+
+
+                <!-- LANE ICON -->
+
+                <div class="name-tag-icon">
+
+                    <img
+                        id="rotator-blue-lane"
+                        src="images/slash.png"
+                        alt="Lane"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- PLAYER TWO -->
+
+        <div
+            class="player-rotator"
+            id="rotator-red"
+        >
+
+            <img
+                class="player-photo"
+                id="rotator-red-photo"
+                src="images/vii.png"
+                alt="Player"
+            >
+
+
+            <div class="name-tag">
+
+
+                <div class="name-tag-bg">
+
+                    <span
+                        class="name-tag-text"
+                        id="rotator-red-name"
+                    >
+                        VII
+                    </span>
+
+                </div>
+
+
+                <!-- LANE ICON -->
+
+                <div class="name-tag-icon">
+
+                    <img
+                        id="rotator-red-lane"
+                        src="images/slash.png"
+                        alt="Lane"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =====================================================
+         BOTTOM
+    ====================================================== -->
+
+    <div class="bottom-section">
+
+        <div class="bottom-line"></div>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+const COUNTDOWN_MINUTES = 5;
+
+let endTime =
+    Date.now()
+    +
+    COUNTDOWN_MINUTES
+    *
+    60
+    *
+    1000;
+
+
+function pad(n) {
+    return String(n).padStart(2, '0');
+}
+
+
+function tick() {
+
+    const countdown =
+        document.getElementById('countdown');
+
+
+    const difference =
+        Math.max(
+            0,
+            endTime - Date.now()
+        );
+
+
+    const seconds =
+        Math.floor(
+            difference / 1000
+        );
+
+
+    const minutes =
+        Math.floor(
+            seconds / 60
+        );
+
+
+    const remainingSeconds =
+        seconds % 60;
+
+
+    countdown.textContent =
+        `${pad(minutes)}:${pad(remainingSeconds)}`;
+
+
+    if (difference <= 0) {
+        countdown.textContent = "STARTING";
+    }
+
+}
+
+
+tick();
+
+setInterval(tick, 1000);
+
+</script>
+
+
+<!-- KEEP YOUR EXISTING SCRIPTS -->
+
+<script src="script/displaynicknamelogo.js"></script>
+<script src="script/displayhero.js"></script>
+<script src="script/laneimg.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Display Overlay</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,800;1,900&family=Rajdhani:wght@500;600;700&display=swap');
+
+  @import url('https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap');
+  @font-face {
+    font-family: 'myfonts';
+    src: url('Assets/Font/custom_font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  :root {
+    --ac:  #00C4FF;
+    --acg: rgba(0,196,255,0.55);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+ body {
+    width: 1920px;
+    height: 1080px;
+    background: transparent;
+    position: relative;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  /* ═══════════════════════════════════════════
+     SPAWN NOTIFICATION — full-frame WebM, just plays (no positioning/animation)
+  ═══════════════════════════════════════════ */
+  #spawnVideo {
+    position: absolute; top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    object-fit: contain;
+    background: transparent;
+    display: none;                 /* shown when playback actually starts */
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  #objWrap {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+#objWrap.show { animation: objGlitchIn 1.1s steps(1,end) forwards; }
+#objWrap.hide { animation: objGlitchOut 0.4s steps(1,end) forwards; }
+
+@keyframes objGlitchIn {
+    0%   { opacity: 0; transform: translateX(-50%) translate(0,0); filter: none; }
+    8%   { opacity: 1; transform: translateX(-50%) translate(-18px,0); filter: hue-rotate(90deg) saturate(3); }
+    16%  { opacity: 1; transform: translateX(-50%) translate(14px,0);  filter: hue-rotate(-60deg) saturate(2); }
+    24%  { opacity: 0.3; transform: translateX(-50%) translate(-10px,0); filter: none; }
+    32%  { opacity: 1; transform: translateX(-50%) translate(8px,0);   filter: hue-rotate(45deg); }
+    40%  { opacity: 1; transform: translateX(-50%) translate(-4px,0);  filter: none; }
+    48%  { opacity: 1; transform: translateX(-50%) translate(0,0);     filter: none; }
+    100% { opacity: 1; transform: translateX(-50%) translate(0,0);     filter: none; }
+}
+
+@keyframes objGlitchOut {
+    0%   { opacity: 1; transform: translateX(-50%) translate(0,0);    filter: none; }
+    15%  { opacity: 1; transform: translateX(-50%) translate(16px,0); filter: hue-rotate(90deg) saturate(3); }
+    30%  { opacity: 0.6; transform: translateX(-50%) translate(-14px,0); filter: hue-rotate(-45deg); }
+    45%  { opacity: 1; transform: translateX(-50%) translate(10px,0);  filter: none; }
+    60%  { opacity: 0.2; transform: translateX(-50%) translate(-8px,0); filter: hue-rotate(60deg); }
+    100% { opacity: 0; transform: translateX(-50%) translate(0,0);     filter: none; }
+}
+
+#objWrap.show #objCardBg,
+#objWrap.hide #objCardBg {
+    animation: objBgSlice 0.5s steps(1,end);
+}
+@keyframes objBgSlice {
+    0%   { clip-path: inset(0 0 100% 0); }
+    8%   { clip-path: inset(10% 0 40% 0); }
+    16%  { clip-path: inset(60% 0 5% 0); }
+    24%  { clip-path: inset(30% 0 55% 0); }
+    32%  { clip-path: inset(0 0 0 0); }
+    40%  { clip-path: inset(20% 0 60% 0); }
+    48%  { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 0 0 0); }
+}  
+
+  #objCard {
+    --card-w: 900px;
+    --card-h: 235px;
+    width: var(--card-w);
+    height: var(--card-h);
+    position: relative;
+    overflow: visible;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.55));
+  }
+
+  #objCardBg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+    display: block;
+  }
+
+  #objCardBgError {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(200,0,0,0.15);
+    border: 2px dashed #ff4444;
+    color: #ff8080;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  #objAccentStrip {
+    position: absolute;
+    left: 3%; right: 3%; bottom: -4px;
+    height: 4px;
+    background: var(--ac);
+    box-shadow: 0 0 16px var(--acg), 0 0 34px var(--acg);
+    z-index: 2;
+  }
+
+ #objPhotoClip {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible; 
+    z-index: 1;
+  }
+
+  #objPlayerImg {
+    position: absolute;
+    left: 40%;
+    bottom: 0;
+    height: 140%;
+    width: 34%;
+    object-fit: cover;
+    object-position: top center;
+    z-index: 1;
+    display: none;
+    clip-path: inset(-500px -100px 0px -100px);
+  }
+ #objTeamLogo {
+    position: absolute;
+    left: 84%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 18%;
+    height: auto;
+    object-fit: contain;
+    z-index: 1;
+    display: none;
+}
+
+  #objIdentityRow {
+    position: absolute;
+    left: 6%;
+    top: 15%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2;
+  }
+
+  #objRoleIcon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); 
+    display: none;
+  }
+
+  #objPlayerName {
+    font-family: 'Zen Dots', sans-serif;
+    font-weight: 700;
+    padding-left: 6px;
+    font-size: 19.7px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.90);
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(0,0,0,0.6);
+    white-space: nowrap;
+  }
+
+
+  /* ═══════════════════════════════════════════
+     KILL NOTIFICATION — BOTTOM CENTER
+     Rebuilt as an image-card (same pattern as the objective card):
+     background art (diamond-pattern panel w/ gold corners) +
+     kill-type text baked-position on the left + player cutout photo
+     popping out the TOP of the card (clipped flush at the bottom) +
+     a black name tag centered under the photo + team logo on the right.
+  ═══════════════════════════════════════════ */
+  #killWrap {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 30;
+  }
+
+  #killWrap.show { animation: objGlitchIn 1.1s steps(1,end) forwards; }
+  #killWrap.hide { animation: objGlitchOut 0.4s steps(1,end) forwards; }
+
+  #killWrap.show #killCardBg,
+  #killWrap.hide #killCardBg {
+    animation: objBgSlice 0.5s steps(1,end);
+  }
+
+  /* Card sized to the reference art's ratio (~1246:400). Fixed px, same
+     reasoning as objCard: aspect-ratio isn't reliable in some OBS/CEF
+     browser sources. */
+  #killCard {
+    --card-w: 840px;
+    --card-h: 270px;
+    width: var(--card-w);
+    height: var(--card-h);
+    position: relative;
+    overflow: visible;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.55));
+  }
+
+  #killCardBg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+    display: block;
+  }
+
+  #killCardBgError {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(200,0,0,0.15);
+    border: 2px dashed #ff4444;
+    color: #ff8080;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 8px;
+  }
+
+  /* Kill-type text, left side of the card, vertically centered */
+  #killTextBlock {
+    position: absolute;
+    left: 6%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  #killWord1, #killWord2 {
+    padding-left: -5px;
+    font-family: 'Zen Dots', sans-serif;
+    font-size: 4.5em;
+    font-weight: 900;
+    letter-spacing: 3px;
+    line-height: 0.98;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  /* Player cutout — pops out the top of the card, clipped flush at the
+     card's bottom edge (upper-body / waist-up crop). */
+  #killPhotoClip {
+    position: absolute;
+    top: 0;
+    left: 30%;
+    width: 34%;
+    height: 100%;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  #killPlayerImg {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 140%;
+    height: 165%;
+    object-fit: cover;
+    object-position: top center;
+    z-index: 5;
+    display: none;
+    /* allow spillover above the card, hard-clip below the card's bottom edge */
+    clip-path: inset(-500px -100px 0px -100px);
+
+  }
+
+  /* Black name tag, centered under the player photo, straddling the
+     card's bottom edge like the reference image. */
+  #killNameTag {
+    position: absolute;
+    left: 40%;
+    width: 30%;
+    bottom: 7%;
+    transform: translateY(50%) scale(1.5);;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+    padding: 4px 10px;
+    z-index: 7;
+    white-space: nowrap;
+  }
+
+  #killPlayerName {
+    font-family: 'Zen Dots', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  #killTeamLogo {
+    position: absolute;
+    left: 84%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+    height: auto;
+    object-fit: contain;
+    z-index: 1;
+    display: none;
+  }
+
+  #killGlow {
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:900px; height:250px;
+    background:radial-gradient(ellipse 80% 60% at 50% 100%,var(--acg) 0%,transparent 100%);
+    pointer-events:none; z-index:29; opacity:0; transition:opacity 0.4s ease;
+    display: none;
+  }
+
+
+  #notiWrap {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+#notiWrap.show { animation: objGlitchIn 1.1s steps(1,end) forwards; }
+#notiWrap.hide { animation: objGlitchOut 0.4s steps(1,end) forwards; }
+
+#notiWrap.show #notiCardBg,
+#notiWrap.hide #notiCardBg {
+  animation: objBgSlice 0.5s steps(1,end);
+}
+
+#notiCard {
+  --card-w: 840px;
+  --card-h: 270px;
+  width: var(--card-w);
+  height: var(--card-h);
+  position: relative;
+  overflow: visible;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.55));
+}
+
+#notiCardBg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 0;
+  display: block;
+}
+
+#notiCardBgError {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(200,0,0,0.15);
+  border: 2px dashed #ff4444;
+  color: #ff8080;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-align: center;
+  padding: 8px;
+}
+
+/* noti-type text, left side of the card, vertically centered */
+  #notiTextBlock {
+    position: absolute;
+    left: 4%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  #notiWord1, #notiWord2 {
+    padding-left: -5px;
+    font-family: 'Zen Dots', sans-serif;
+    font-size: 4em;
+    font-weight: 900;
+    letter-spacing: 3px;
+    line-height: 0.98;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  /* Player cutout — pops out the top of the card, clipped flush at the
+     card's bottom edge (upper-body / waist-up crop). */
+  #notiPhotoClip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 34%;
+    height: 100%;
+    overflow: visible;
+    z-index: 5;
+  }
+
+  #notiPlayerImg {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 140%;
+    height: 165%;
+    object-fit: cover;
+    object-position: top center;
+    z-index: 5;
+    display: none;
+    /* allow spillover above the card, hard-clip below the card's bottom edge */
+    clip-path: inset(-500px -100px 0px -100px);
+
+  }
+
+  /* Black name tag, centered under the player photo, straddling the
+     card's bottom edge like the reference image. */
+  #notiNameTag {
+    position: absolute;
+    left: 60%;
+    width: 30%;
+    bottom: 7%;
+    transform: translateY(50%) scale(1.5);;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+    padding: 4px 10px;
+    z-index: 7;
+    white-space: nowrap;
+  }
+
+  #notiPlayerName {
+    font-family: 'Zen Dots', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #fff;
+    text-transform: uppercase;
+  }
+
+  #notiTeamLogo {
+    position: absolute;
+    left: 84%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+    height: auto;
+    object-fit: contain;
+    z-index: 1;
+    display: none;
+  }
+
+#objCard, #killCard, #notiCard {
+  transform: scale(0.80);   /* adjust 0.85 to taste */
+  transform-origin: bottom center;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     SPAWN NOTIFICATION — full-frame video
+════════════════════════════════ -->
+<video id="spawnVideo" playsinline preload="auto"></video>
+
+<div id="objWrap">
+  <div id="objCard">
+    <img id="objCardBg" src="Assets/notification/lord_slain_bg.png" alt="">
+    <div id="objCardBgError">Background image failed to load.<br>Check that the file exists at the path shown in the page source.</div>
+    <div id="objPhotoClip">
+      <img id="objPlayerImg" src="" alt="">
+    </div>
+    <div id="objIdentityRow">
+      <img id="objRoleIcon" src="" alt="">
+      <span id="objPlayerName"></span>
+    </div>
+    <img id="objTeamLogo" src="" alt="">
+  </div>
+</div>
+
+
+<div id="notiWrap">
+  <div id="notiCard">
+    <img id="notiCardBg" src="Assets/notification/kill_bg.png" alt="">
+    <div id="notiCardBgError">Background image failed to load.<br>Check that the file exists at the path shown in the page source.</div>
+    <div id="notiTextBlock">
+      <span id="notiWord1">WORD1</span>
+      <span id="notiWord2">WORD2</span>
+    </div>
+    <div id="notiPhotoClip">
+      <img id="notiPlayerImg" src="" alt="">
+    </div>
+    <div id="notiNameTag">
+      <span id="notiPlayerName">PLAYER</span>
+    </div>
+    <img id="notiTeamLogo" src="" alt="">
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     KILL NOTIFICATION — BOTTOM CENTER
+     (image-card style, matches the objective card pattern)
+════════════════════════════════ -->
+<div id="killWrap">
+  <div id="killCard">
+    <img id="killCardBg" src="Assets/notification/kill_bg.png" alt="">
+    <div id="killCardBgError">Background image failed to load.<br>Check that the file exists at the path shown in the page source.</div>
+    <div id="killTextBlock">
+      <span id="killWord1">FIRST</span>
+      <span id="killWord2">BLOOD</span>
+    </div>
+    <div id="killPhotoClip">
+      <img id="killPlayerImg" src="" alt="">
+    </div>
+    <div id="killNameTag">
+      <span id="killPlayerName">PLAYER</span>
+    </div>
+    <img id="killTeamLogo" src="" alt="">
+  </div>
+</div>
+
+<div id="killGlow"></div>
+
+
+<script>
+  /* ── Spawn ── */
+  const spawnVideo = document.getElementById('spawnVideo');
+
+  /* ── Obj/Slain ── */
+  const objWrap         = document.getElementById('objWrap');
+  const objCardBg       = document.getElementById('objCardBg');
+  const objCardBgError  = document.getElementById('objCardBgError');
+  const objPlayerImg    = document.getElementById('objPlayerImg');
+  const objRoleIcon     = document.getElementById('objRoleIcon');
+  const objPlayerName   = document.getElementById('objPlayerName');
+  const objTeamLogo     = document.getElementById('objTeamLogo');
+
+  objCardBg.onerror = () => {
+    objCardBg.style.display = 'none';
+    objCardBgError.style.display = 'flex';
+  };
+  objCardBg.onload = () => {
+    objCardBg.style.display = 'block';
+    objCardBgError.style.display = 'none';
+  };
+
+  /* ── Kill ── */
+  const killWrap        = document.getElementById('killWrap');
+  const killCardBg      = document.getElementById('killCardBg');
+  const killCardBgError = document.getElementById('killCardBgError');
+  const killWord1       = document.getElementById('killWord1');
+  const killWord2       = document.getElementById('killWord2');
+  const killPlayerImg   = document.getElementById('killPlayerImg');
+  const killPlayerName  = document.getElementById('killPlayerName');
+  const killTeamLogo    = document.getElementById('killTeamLogo');
+  const killGlow        = document.getElementById('killGlow');
+
+  killCardBg.onerror = () => {
+    killCardBg.style.display = 'none';
+    killCardBgError.style.display = 'flex';
+  };
+  killCardBg.onload = () => {
+    killCardBg.style.display = 'block';
+    killCardBgError.style.display = 'none';
+  };
+
+  let objTimer = null, killTimer = null;
+
+  function accentEl(el, color, glow) {
+    el.style.setProperty('--ac',  color);
+    el.style.setProperty('--acg', glow);
+  }
+
+  function showEl(el) {
+    el.classList.remove('show','hide');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+  function hideEl(el, cb) {
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('hide');
+    const onEnd = () => {
+      el.removeEventListener('animationend', onEnd);
+      el.classList.remove('hide');
+      if (cb) cb();
+    };
+    el.addEventListener('animationend', onEnd);
+  }
+
+  /* ══ FIRE SPAWN — just plays the full-frame WebM, then hides ══ */
+  spawnVideo.onplaying = () => { spawnVideo.style.display = 'block'; };
+  spawnVideo.onended   = () => { spawnVideo.style.display = 'none'; };
+  spawnVideo.onerror   = () => {
+    console.error('Spawn video failed to load:', spawnVideo.getAttribute('src'));
+    spawnVideo.style.display = 'none';
+  };
+
+  function fireSpawn(videoSrc) {
+    spawnVideo.pause();
+    spawnVideo.style.display = 'none';
+    spawnVideo.src = videoSrc;
+    spawnVideo.currentTime = 0;
+    const p = spawnVideo.play();
+    if (p && p.catch) {
+      p.catch(() => {
+        // autoplay with sound can be blocked in a normal browser tab; retry muted
+        spawnVideo.muted = true;
+        spawnVideo.play().catch(err => console.error('Spawn video play failed:', err));
+      });
+    }
+  }
+
+  const notiWrap        = document.getElementById('notiWrap');
+const notiCardBg      = document.getElementById('notiCardBg');
+const notiCardBgError = document.getElementById('notiCardBgError');
+const notiWord1       = document.getElementById('notiWord1');
+const notiWord2       = document.getElementById('notiWord2');
+const notiPlayerImg   = document.getElementById('notiPlayerImg');
+const notiPlayerName  = document.getElementById('notiPlayerName');
+const notiTeamLogo    = document.getElementById('notiTeamLogo');
+
+notiCardBg.onerror = () => {
+  notiCardBg.style.display = 'none';
+  notiCardBgError.style.display = 'flex';
+};
+notiCardBg.onload = () => {
+  notiCardBg.style.display = 'block';
+  notiCardBgError.style.display = 'none';
+};
+
+let notiTimer = null;
+
+function fireNoti(word1, word2, playerName) {
+  if (notiTimer) { clearTimeout(notiTimer); notiTimer = null; }
+
+  notiWord1.textContent = word1;
+  notiWord2.textContent = word2;
+
+  const info = getPlayerInfo(playerName);
+
+  if (playerName) {
+    notiPlayerImg.onload = notiPlayerImg.onerror = null;
+    notiPlayerImg.src = `Assets/player/${encodeURIComponent(playerName)}.png`;
+    notiPlayerImg.onerror = () => { notiPlayerImg.style.display = 'none'; };
+    notiPlayerImg.onload  = () => { notiPlayerImg.style.display = 'block'; };
+    notiPlayerName.textContent = playerName;
+  } else {
+    notiPlayerImg.style.display = 'none';
+    notiPlayerImg.src = '';
+    notiPlayerName.textContent = '';
+  }
+
+  if (info?.logo) {
+    notiTeamLogo.onload = notiTeamLogo.onerror = null;
+    notiTeamLogo.src = info.logo;
+    notiTeamLogo.onerror = () => { notiTeamLogo.style.display = 'none'; };
+
+  } else {
+    notiTeamLogo.style.display = 'none';
+    notiTeamLogo.src = '';
+  }
+
+  showEl(notiWrap);
+
+  notiTimer = setTimeout(() => {
+    hideEl(notiWrap);
+  }, 4800);
+}
+
+  /* ══ FIRE OBJECTIVE/SLAIN — bottom-center card ══ */
+  function fireObj(playerName, objectiveKey) {
+    if (objTimer) { clearTimeout(objTimer); objTimer = null; }
+
+    const bgSrc = objectiveKey ? `Assets/notification/${objectiveKey}_slain_bg.png` : null;
+    if (bgSrc && objCardBg.getAttribute('src') !== bgSrc) {
+      objCardBg.src = bgSrc;
+    }
+
+    const info = getPlayerInfo(playerName);
+
+    if (playerName) {
+      objPlayerImg.onload = objPlayerImg.onerror = null;
+      objPlayerImg.src = `Assets/player/${encodeURIComponent(playerName)}.png`;
+      objPlayerImg.onerror = () => { objPlayerImg.style.display = 'none'; };
+      objPlayerImg.onload  = () => { objPlayerImg.style.display = 'block'; };
+      objPlayerName.textContent = playerName;
+    } else {
+      objPlayerImg.style.display = 'none';
+      objPlayerImg.src = '';
+      objPlayerName.textContent = '';
+    }
+
+    if (info?.lane) {
+      objRoleIcon.onload = objRoleIcon.onerror = null;
+      objRoleIcon.src = `Assets/lane/${info.lane.toLowerCase()}.png`;
+      objRoleIcon.onerror = () => { objRoleIcon.style.display = 'none'; };
+      objRoleIcon.onload  = () => { objRoleIcon.style.display = 'block'; };
+    } else {
+      objRoleIcon.style.display = 'none';
+      objRoleIcon.src = '';
+    }
+
+    if (info?.logo) {
+      objTeamLogo.onload = objTeamLogo.onerror = null;
+      objTeamLogo.src = info.logo;
+      objTeamLogo.onerror = () => { objTeamLogo.style.display = 'none'; };
+    } else {
+      objTeamLogo.style.display = 'none';
+      objTeamLogo.src = '';
+    }
+
+    showEl(objWrap);
+
+    objTimer = setTimeout(() => {
+      hideEl(objWrap);
+    }, 5200);
+  }
+
+  /* ══ FIRE KILL — bottom-center card (photo overflows top, clipped
+     flush at bottom; black name tag centered under photo; team logo
+     on the right) ══ */
+  function fireKill(word1, word2, color, glow, gifSrc, playerName) {
+    if (killTimer) { clearTimeout(killTimer); killTimer = null; }
+
+   // accentEl(killGlow, color, glow);
+
+    killWord1.textContent = word1;
+    killWord2.textContent = word2;
+
+    const info = getPlayerInfo(playerName);
+
+    if (playerName) {
+      killPlayerImg.onload = killPlayerImg.onerror = null;
+      killPlayerImg.src = `Assets/player/${encodeURIComponent(playerName)}.png`;
+      killPlayerImg.onerror = () => { killPlayerImg.style.display = 'none'; };
+      killPlayerImg.onload  = () => { killPlayerImg.style.display = 'block'; };
+      killPlayerName.textContent = playerName;
+    } else {
+      killPlayerImg.style.display = 'none';
+      killPlayerImg.src = '';
+      killPlayerName.textContent = '';
+    }
+
+    if (info?.logo) {
+      killTeamLogo.onload = killTeamLogo.onerror = null;
+      killTeamLogo.src = info.logo;
+      killTeamLogo.onerror = () => { killTeamLogo.style.display = 'none'; };
+      killTeamLogo.onload  = () => { killTeamLogo.style.display = 'block'; };
+    } else {
+      killTeamLogo.style.display = 'none';
+      killTeamLogo.src = '';
+    }
+
+
+    showEl(killWrap);
+
+    killTimer = setTimeout(() => {
+      hideEl(killWrap);
+    }, 4800);
+
+  }
+
+  /* ══ MATCH DATA ══ */
+  let blueTeamName   = 'BLUE TEAM', redTeamName = 'RED TEAM';
+  let playerInfoMap  = {};
+
+  function getPlayerInfo(name) {
+    if (!name) return null;
+    return playerInfoMap[name] || null;
+  }
+
+ async function loadMatchData() {
+    try {
+      const res = await fetch('/api/matchdata');
+      if (!res.ok) return;
+      const d = await res.json();
+
+      blueTeamName = d?.teamdata?.blueteam?.teamname?.toUpperCase() || 'BLUE TEAM';
+      redTeamName  = d?.teamdata?.redteam?.teamname?.toUpperCase()  || 'RED TEAM';
+
+      const map = {};
+      (d?.teamdata?.blueteam?.playerlist || []).forEach(p => {
+        map[p.name] = {
+          teamname: d.teamdata.blueteam.teamname,
+          lane: p.lane,
+          logo: d.teamdata.blueteam.logo
+        };
+      });
+      (d?.teamdata?.redteam?.playerlist || []).forEach(p => {
+        map[p.name] = {
+          teamname: d.teamdata.redteam.teamname,
+          lane: p.lane,
+          logo: d.teamdata.redteam.logo
+        };
+      });
+      playerInfoMap = map;
+    } catch(_) {}
+}
+  loadMatchData();
+  setInterval(loadMatchData, 15000);
+
+  /* ══ EVENT MAP ══ */
+  function buildEventMap() {
+    return {
+      'videoPlayer1': () => fireSpawn('Assets/notification/turtlespawn.webm'),
+      'videoPlayer4': () => fireSpawn('Assets/notification/lordspawnn.webm'),
+
+      'videoPlayer2': p => fireObj(p,'turtle'),
+      'videoPlayer5': p => fireObj(p,'lord'),
+
+      'videoPlayer7':  p => fireKill('FIRST','BLOOD','#FF2222','rgba(255,34,34,0.6)', '', p),
+      'videoPlayer8':  p => fireKill('DOUBLE','KILL','#FF9500','rgba(255,149,0,0.4)', '', p),
+      'videoPlayer9':  p => fireKill('TRIPLE','KILL','#FF9500','rgba(255,149,0,0.4)', '', p),
+      'videoPlayer10': p => fireNoti('','MANIAC', p),
+      'videoPlayer11': p => fireNoti('','SAVAGE', p),
+      'videoPlayer12': p => fireKill('WIPED','OUT','#FF2222','rgba(255,34,34,0.6)', '', p),
+    };
+  }
+
+  /* ══ WEBSOCKET ══ */
+  (function connectWS() {
+    try {
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${proto}//${location.host}`);
+      ws.onmessage = e => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type !== 'notification_trigger') return;
+          if (msg.sponsor)      window._sponsorName = msg.sponsor;
+          if (msg.blueTeamName) blueTeamName = msg.blueTeamName.toUpperCase();
+          if (msg.redTeamName)  redTeamName  = msg.redTeamName.toUpperCase();
+          const fn = buildEventMap()[msg.videoId];
+          if (fn) fn(msg.playerName || '');
+        } catch(_) {}
+      };
+      ws.onclose = () => setTimeout(connectWS, 3000);
+    } catch(_) {}
+  })();
+</script>
+</body>
+</html>

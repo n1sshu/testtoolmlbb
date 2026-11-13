@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Draft Display</title>
+
+<style>
+@font-face {
+    font-family: 'myfonts';
+    src: url('Assets/Font/custom_font.ttf') format('truetype');
+}
+
+:root {
+    --primary: #24a9fc;
+    --primary-dark: #0877bd;
+    --primary-light: #69c8ff;
+    --primary-glow: rgba(36,169,252,0.45);
+
+    --red: #ff3150;
+    --red-dark: #a90d25;
+    --red-glow: rgba(255,49,80,0.35);
+
+    --bg-dark: #060b10;
+    --bg-panel: #0b1219;
+    --bg-panel-2: #0e1821;
+    --bg-card: #111d27;
+
+    --white: #ffffff;
+    --text: #eaf6ff;
+    --muted: #7590a3;
+    --grey: #647887;
+    --bar-bg: #172631;
+
+    --strip-h: 300px;
+    --middle-h: calc(1080px - var(--strip-h) * 2);
+    --anim-speed: 1;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'myfonts', sans-serif;
+    background: #020508;
+    overflow: hidden;
+}
+
+.hide {
+    display: none;
+}
+
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
+
+.mainbox {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            ellipse 70% 50% at 50% 0%,
+            rgba(36,169,252,0.10),
+            transparent 65%
+        ),
+        radial-gradient(
+            ellipse 45% 60% at 0% 50%,
+            rgba(36,169,252,0.07),
+            transparent 70%
+        ),
+        radial-gradient(
+            ellipse 45% 60% at 100% 50%,
+            rgba(255,49,80,0.06),
+            transparent 70%
+        ),
+        #060b10;
+}
+
+/* Technical grid */
+.mainbox::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(36,169,252,0.025) 50%,
+            transparent 100%
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 39px,
+            rgba(255,255,255,0.018) 40px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 39px,
+            rgba(255,255,255,0.018) 40px
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Cyan center atmosphere */
+.mainbox::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 300px;
+    width: 900px;
+    height: 480px;
+    transform: translateX(-50%);
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(36,169,252,0.055),
+            transparent 68%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* =========================================================
+   HERO STRIPS
+========================================================= */
+
+.hero-strip,
+.hero-strip-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--strip-h);
+
+    display: flex;
+    z-index: 10;
+
+    opacity: 0;
+    transition: none;
+
+    background: #081018;
+}
+
+.hero-strip {
+    top: 0;
+    transform: translateY(-100%);
+
+    border-bottom: 2px solid rgba(36,169,252,0.45);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,0.55),
+        0 2px 25px rgba(36,169,252,0.08);
+}
+
+.hero-strip-bottom {
+    bottom: 0;
+    transform: translateY(100%);
+
+    border-top: 2px solid rgba(255,49,80,0.4);
+
+    box-shadow:
+        0 -12px 35px rgba(0,0,0,0.55),
+        0 -2px 25px rgba(255,49,80,0.07);
+}
+
+.hero-strip.animate-in {
+    animation:
+        stripSlideDown
+        calc(0.65s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.hero-strip-bottom.animate-in {
+    animation:
+        stripSlideUp
+        calc(0.65s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.hero-strip.visible,
+.hero-strip-bottom.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes stripSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes stripSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   HERO SLOTS
+========================================================= */
+
+.hero-slot {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    height: var(--strip-h);
+
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: none;
+
+    background: #091119;
+}
+
+.hero-strip-bottom .hero-slot {
+    transform: translateY(20px);
+}
+
+.hero-slot.animate-in {
+    animation:
+        slotFadeUp
+        calc(0.55s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+.hero-strip-bottom .hero-slot.animate-in {
+    animation:
+        slotFadeDown
+        calc(0.55s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+.hero-slot.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes slotFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slotFadeDown {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   HERO IMAGE
+========================================================= */
+
+.hero-slot .image-box {
+    position: absolute;
+    inset: 0 0 46px 0;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b1822,
+            #05090d
+        );
+}
+
+.hero-slot img.hero-img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center 15%;
+
+    display: block;
+
+    filter:
+        brightness(0.78)
+        contrast(1.12)
+        saturate(1.05);
+
+    transform: scale(1.01);
+}
+
+/* Image overlay */
+.hero-slot .image-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(4,10,15,0.75),
+            transparent 25%,
+            transparent 75%,
+            rgba(4,10,15,0.75)
+        ),
+        linear-gradient(
+            0deg,
+            rgba(3,8,12,0.85),
+            transparent 50%
+        );
+
+    pointer-events: none;
+}
+
+/* Cyan top-team image tint */
+.hero-strip .hero-slot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(36,169,252,0.10),
+            transparent 35%
+        );
+
+    pointer-events: none;
+}
+
+/* Red bottom-team image tint */
+.hero-strip-bottom .hero-slot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            0deg,
+            rgba(255,49,80,0.09),
+            transparent 35%
+        );
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   HERO NAME BADGE
+========================================================= */
+
+.hero-slot .hero-name-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 18px;
+    gap: 10px;
+
+    z-index: 5;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(6,17,26,0.98),
+            rgba(8,19,29,0.90)
+        );
+
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Cyan team badge */
+.hero-strip .hero-name-badge {
+    border-left: 3px solid var(--primary);
+}
+
+/* Red team badge */
+.hero-strip-bottom .hero-name-badge {
+    border-left: 3px solid var(--red);
+}
+
+.hero-slot .role-icon {
+    width: 24px;
+    height: 24px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0.9;
+}
+
+.hero-slot .role-icon img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    filter:
+        brightness(0)
+        invert(1);
+}
+
+.bluenick,
+.rednick {
+    font-size: 22px;
+    font-weight: 800;
+
+    color: var(--white);
+
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bluenick {
+    text-shadow: 0 0 12px rgba(36,169,252,0.25);
+}
+
+.rednick {
+    text-shadow: 0 0 12px rgba(255,49,80,0.20);
+}
+
+/* Slot dividers */
+.hero-slot + .hero-slot::before {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    bottom: 46px;
+    left: 0;
+
+    width: 1px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(255,255,255,0.16),
+            transparent
+        );
+
+    z-index: 8;
+}
+
+/* =========================================================
+   STATS MIDDLE
+========================================================= */
+
+.stats-section {
+    position: absolute;
+
+    top: var(--strip-h);
+    left: 0;
+    right: 0;
+
+    height: var(--middle-h);
+
+    display: flex;
+
+    z-index: 5;
+
+    clip-path: inset(50% 0 50% 0);
+    opacity: 0;
+
+    transition: none;
+}
+
+.stats-section.animate-in {
+    animation:
+        sectionReveal
+        calc(0.7s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.stats-section.visible {
+    clip-path: inset(0% 0 0% 0);
+    opacity: 1;
+}
+
+@keyframes sectionReveal {
+    from {
+        clip-path: inset(50% 0 50% 0);
+        opacity: 0;
+    }
+
+    to {
+        clip-path: inset(0% 0 0% 0);
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   TEAM PANELS
+========================================================= */
+
+.team-panel {
+    width: 320px;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(10,20,29,0.98),
+            rgba(7,13,19,0.96)
+        );
+
+    border-right: 1px solid rgba(36,169,252,0.14);
+
+    transform: translateX(-60px);
+    opacity: 0;
+}
+
+/* Cyan panel glow */
+.team-panel::before {
+    content: '';
+
+    position: absolute;
+
+    top: -120px;
+    left: -120px;
+
+    width: 340px;
+    height: 340px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(36,169,252,0.14),
+            transparent 68%
+        );
+
+    pointer-events: none;
+}
+
+/* Cyan accent edge */
+.team-panel::after {
+    content: '';
+
+    position: absolute;
+
+    left: 0;
+    top: 15%;
+    bottom: 15%;
+
+    width: 3px;
+
+    background:
+        linear-gradient(
+            transparent,
+            var(--primary),
+            transparent
+        );
+
+    box-shadow:
+        0 0 16px rgba(36,169,252,0.35);
+}
+
+.team-panel.right-panel {
+    border-right: none;
+    border-left: 1px solid rgba(255,49,80,0.13);
+
+    transform: translateX(60px);
+}
+
+.team-panel.right-panel::before {
+    top: -120px;
+    left: auto;
+    right: -120px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,49,80,0.13),
+            transparent 68%
+        );
+}
+
+.team-panel.right-panel::after {
+    left: auto;
+    right: 0;
+
+    background:
+        linear-gradient(
+            transparent,
+            var(--red),
+            transparent
+        );
+
+    box-shadow:
+        0 0 16px rgba(255,49,80,0.30);
+}
+
+.team-panel.animate-in {
+    animation:
+        panelSlideLeft
+        calc(0.65s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.team-panel.right-panel.animate-in {
+    animation:
+        panelSlideRight
+        calc(0.65s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.team-panel.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+@keyframes panelSlideLeft {
+    from {
+        transform: translateX(-60px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes panelSlideRight {
+    from {
+        transform: translateX(60px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   TEAM LOGOS
+========================================================= */
+
+.team-logo-large {
+    width: 105px;
+    height: 105px;
+
+    object-fit: contain;
+
+    margin-bottom: 15px;
+
+    filter:
+        drop-shadow(0 0 18px rgba(36,169,252,0.20));
+
+    position: relative;
+    z-index: 2;
+}
+
+.right-panel .team-logo-large {
+    filter:
+        drop-shadow(0 0 18px rgba(255,49,80,0.18));
+}
+
+/* =========================================================
+   TEAM NAME
+========================================================= */
+
+.name-box {
+    font-size: 38px;
+    font-weight: 900;
+
+    color: var(--white);
+
+    letter-spacing: 3px;
+    text-transform: uppercase;
+
+    margin-bottom: 18px;
+
+    text-align: center;
+
+    line-height: 1;
+
+    text-shadow:
+        0 2px 10px rgba(0,0,0,0.6);
+
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================================================
+   INDEX BOXES
+========================================================= */
+
+.index-box {
+    width: 100%;
+
+    padding: 10px 16px;
+    margin-bottom: 9px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(36,169,252,0.08),
+            rgba(255,255,255,0.025)
+        );
+
+    border:
+        1px solid rgba(255,255,255,0.08);
+
+    border-left:
+        3px solid var(--primary);
+
+    position: relative;
+    z-index: 2;
+
+    transform: scaleX(0);
+    transform-origin: left;
+
+    opacity: 0;
+}
+
+.index-box.blue-accent {
+    border-left: 1px solid rgba(255,255,255,0.08);
+    border-right: 3px solid var(--red);
+
+    transform-origin: right;
+
+    background:
+        linear-gradient(
+            -90deg,
+            rgba(255,49,80,0.08),
+            rgba(255,255,255,0.025)
+        );
+}
+
+.index-box.animate-in {
+    animation:
+        indexReveal
+        calc(0.45s / var(--anim-speed))
+        cubic-bezier(0.22,1,0.36,1)
+        forwards;
+}
+
+.index-box.visible {
+    transform: scaleX(1);
+    opacity: 1;
+}
+
+@keyframes indexReveal {
+    from {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+}
+
+.index-label {
+    font-family: 'myfonts', sans-serif;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: var(--muted);
+
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+
+    margin-bottom: 3px;
+}
+
+.index-value {
+    font-size: 34px;
+    font-weight: 900;
+
+    color: var(--white);
+
+    line-height: 1;
+}
+
+.index-value.positive {
+    color: var(--primary);
+
+    text-shadow:
+        0 0 14px rgba(36,169,252,0.30);
+}
+
+.index-value.negative {
+    color: var(--red);
+
+    text-shadow:
+        0 0 14px rgba(255,49,80,0.25);
+}
+
+/* =========================================================
+   STATS CENTER
+========================================================= */
+
+.stats-center {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 24px 42px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(7,14,20,0.92),
+            rgba(5,10,15,0.96)
+        );
+
+    position: relative;
+
+    opacity: 0;
+}
+
+.stats-center::before {
+    content: '';
+
+    position: absolute;
+
+    left: 50%;
+    top: 0;
+    bottom: 0;
+
+    width: 1px;
+
+    transform: translateX(-50%);
+
+    background:
+        linear-gradient(
+            transparent,
+            rgba(36,169,252,0.15),
+            transparent
+        );
+
+    pointer-events: none;
+}
+
+.stats-center.animate-in {
+    animation:
+        centerFade
+        calc(0.6s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+.stats-center.visible {
+    opacity: 1;
+}
+
+@keyframes centerFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   STAT ROWS
+========================================================= */
+
+.stat-row {
+    margin-bottom: 12px;
+
+    position: relative;
+
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.stat-row.animate-in {
+    animation:
+        rowFadeUp
+        calc(0.4s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+.stat-row.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@keyframes rowFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-label {
+    text-align: center;
+    font-family:  sans-serif;
+
+    font-size: 11px;
+    font-weight: 350;
+
+    letter-spacing: 3.5px;
+
+    color: var(--text);
+
+    text-transform: uppercase;
+
+    margin-bottom: 6px;
+}
+
+/* =========================================================
+   STAT BARS
+========================================================= */
+
+.stat-bars {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.stat-val {
+    width: 50px;
+
+    font-size: 20px;
+    font-weight: 900;
+
+    color: var(--primary);
+
+    text-align: right;
+
+    flex-shrink: 0;
+}
+
+.stat-val.right {
+    text-align: left;
+    color: var(--red);
+}
+
+.bar-track {
+    flex: 1;
+
+    height: 15px;
+
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #111e27,
+            #182a35
+        );
+
+    border:
+        1px solid rgba(255,255,255,0.05);
+
+    box-shadow:
+        inset 0 0 8px rgba(0,0,0,0.4);
+}
+
+/* Blue / left side */
+.bar-fill-left {
+    height: 100%;
+
+    background:
+        linear-gradient(
+            to left,
+            var(--primary),
+            var(--primary-dark)
+        );
+
+    position: absolute;
+
+    right: 50%;
+
+    width: 50%;
+
+    transform-origin: right;
+    transform: scaleX(0);
+
+    box-shadow:
+        0 0 12px rgba(36,169,252,0.25);
+}
+
+/* Red / right side */
+.bar-fill-right {
+    height: 100%;
+
+    background:
+        linear-gradient(
+            to right,
+            var(--red),
+            var(--red-dark)
+        );
+
+    position: absolute;
+
+    left: 50%;
+
+    width: 50%;
+
+    transform-origin: left;
+    transform: scaleX(0);
+
+    box-shadow:
+        0 0 12px rgba(255,49,80,0.22);
+}
+
+.bar-center-line {
+    position: absolute;
+
+    left: 50%;
+    top: -2px;
+    bottom: -2px;
+
+    width: 2px;
+
+    background: rgba(255,255,255,0.65);
+
+    transform: translateX(-50%);
+
+    z-index: 2;
+
+    box-shadow:
+        0 0 7px rgba(255,255,255,0.25);
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header-bar {
+    position: absolute;
+
+    top: var(--strip-h);
+
+    left: 320px;
+    right: 320px;
+
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 6;
+}
+
+.header-bar::before,
+.header-bar::after {
+    content: '';
+
+    height: 1px;
+    flex: 1;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(36,169,252,0.25)
+        );
+}
+
+.header-bar::after {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,49,80,0.25),
+            transparent
+        );
+}
+
+.header-bar span {
+    padding: 0 22px;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 5px;
+
+    color: rgba(255,255,255,0.48);
+
+    text-transform: uppercase;
+}
+
+/* =========================================================
+   CORNERS
+========================================================= */
+
+.corner-tl,
+.corner-tr,
+.corner-bl,
+.corner-br {
+    position: absolute;
+
+    width: 30px;
+    height: 30px;
+
+    z-index: 20;
+
+    opacity: 0;
+}
+
+.corner-tl {
+    top: var(--strip-h);
+    left: 320px;
+
+    border-top: 2px solid var(--primary);
+    border-left: 2px solid var(--primary);
+
+    filter:
+        drop-shadow(0 0 5px rgba(36,169,252,0.45));
+}
+
+.corner-tr {
+    top: var(--strip-h);
+    right: 320px;
+
+    border-top: 2px solid var(--red);
+    border-right: 2px solid var(--red);
+
+    filter:
+        drop-shadow(0 0 5px rgba(255,49,80,0.35));
+}
+
+.corner-bl {
+    bottom: var(--strip-h);
+    left: 320px;
+
+    border-bottom: 2px solid var(--primary);
+    border-left: 2px solid var(--primary);
+
+    filter:
+        drop-shadow(0 0 5px rgba(36,169,252,0.45));
+}
+
+.corner-br {
+    bottom: var(--strip-h);
+    right: 320px;
+
+    border-bottom: 2px solid var(--red);
+    border-right: 2px solid var(--red);
+
+    filter:
+        drop-shadow(0 0 5px rgba(255,49,80,0.35));
+}
+
+.corner-tl.animate-in,
+.corner-tr.animate-in,
+.corner-bl.animate-in,
+.corner-br.animate-in {
+    animation:
+        fadeIn
+        calc(0.3s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+.corner-tl.visible,
+.corner-tr.visible,
+.corner-bl.visible,
+.corner-br.visible {
+    opacity: 1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading-text {
+    color: var(--muted);
+
+    font-family: 'myfonts', sans-serif;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+    text-align: center;
+
+    padding: 20px;
+
+    opacity: 0.8;
+}
+
+/* =========================================================
+   SCANLINES
+========================================================= */
+
+.scan-line {
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 3px,
+            rgba(0,0,0,0.035) 4px
+        );
+
+    pointer-events: none;
+
+    z-index: 100;
+}
+
+/* =========================================================
+   FLASH
+========================================================= */
+
+#flash-overlay {
+    position: absolute;
+    inset: 0;
+
+    background: rgba(255,255,255,0);
+
+    pointer-events: none;
+
+    z-index: 200;
+}
+
+#flash-overlay.flash {
+    animation:
+        flashWipe
+        calc(0.35s / var(--anim-speed))
+        ease
+        forwards;
+}
+
+@keyframes flashWipe {
+    0% {
+        background: rgba(255,255,255,0);
+    }
+
+    15% {
+        background: rgba(36,169,252,0.10);
+    }
+
+    100% {
+        background: rgba(255,255,255,0);
+    }
+}
+</style>
+
+
+</head>
+<body>
+
+<div class="hide">
+    <div id="name-box-2" class="name-box"></div>
+    <div id="name-box-9" class="name-box"></div>
+</div>
+
+<div class="mainbox" id="mainbox">
+    <div class="scan-line"></div>
+    <div id="flash-overlay"></div>
+
+    <div class="corner-tl" id="corner-tl"></div>
+    <div class="corner-tr" id="corner-tr"></div>
+    <div class="corner-bl" id="corner-bl"></div>
+    <div class="corner-br" id="corner-br"></div>
+
+    <!-- TOP hero strip: BLUE team -->
+    <div class="hero-strip" id="blue-strip">
+        <div class="hero-slot"><div id="image-box-1" class="image-box"><img id="image-display-1" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-1-blue" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-3" class="bluenick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-2" class="image-box"><img id="image-display-2" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-2-blue" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-4" class="bluenick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-3" class="image-box"><img id="image-display-3" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-3-blue" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-5" class="bluenick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-4" class="image-box"><img id="image-display-4" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-4-blue" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-6" class="bluenick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-5" class="image-box"><img id="image-display-5" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-5-blue" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-7" class="bluenick"></div></div></div>
+    </div>
+
+    <div class="header-bar"></div>
+
+    <div class="stats-section" id="stats-section">
+        <div class="team-panel" id="left-panel">
+            <img class="team-logo-large" id="displayImage1" src="" alt="">
+            <div id="name-box-1" class="name-box"></div>
+            <div class="index-box" id="idx-box-ci-blue">
+                <div class="index-label">Counter Index</div>
+                <div class="index-value" id="ci-blue">—</div>
+            </div>
+            <div class="index-box" id="idx-box-lr-blue">
+                <div class="index-label">Line Up Rating</div>
+                <div class="index-value" id="lr-blue">—</div>
+            </div>
+        </div>
+
+        <div class="stats-center" id="stats-center">
+            <div class="loading-text">Waiting for adjustment phase…</div>
+        </div>
+
+        <div class="team-panel right-panel" id="right-panel">
+            <img class="team-logo-large" id="displayImage2" src="" alt="">
+            <div id="name-box-8" class="name-box"></div>
+            <div class="index-box blue-accent" id="idx-box-ci-red">
+                <div class="index-label">Counter Index</div>
+                <div class="index-value" id="ci-red">—</div>
+            </div>
+            <div class="index-box blue-accent" id="idx-box-lr-red">
+                <div class="index-label">Line Up Rating</div>
+                <div class="index-value" id="lr-red">—</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM hero strip: RED team -->
+    <div class="hero-strip-bottom" id="red-strip">
+        <div class="hero-slot"><div id="image-box-10" class="image-box"><img id="image-display-10" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-5-red" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-14" class="rednick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-9" class="image-box"><img id="image-display-9" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-4-red" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-13" class="rednick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-8" class="image-box"><img id="image-display-8" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-3-red" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-12" class="rednick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-7" class="image-box"><img id="image-display-7" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-2-red" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-11" class="rednick"></div></div></div>
+        <div class="hero-slot"><div id="image-box-6" class="image-box"><img id="image-display-6" class="hero-img" src="" alt=""></div><div class="hero-name-badge"><div class="role-icon"><img id="player-lane-1-red" class="lane-icon" src="Assets/lane/none.png" alt=""></div><div id="name-box-10" class="rednick"></div></div></div>
+    </div>
+</div>
+
+<audio id="hero-voice" muted></audio>
+
+<script src="script/displaynicknamelogo.js"></script>
+<script src="script/displayhero.js"></script>
+<script src="script/laneimg.js"></script>
+
+<script>
+// ─── ANIMATION SPEED ─────────────────────────────────────────────
+let animSpeed = 1; // controlled externally via WS or postMessage
+
+function setSpeed(s) {
+    animSpeed = parseFloat(s) || 1;
+    // Update CSS variable on mainbox so duration calc works
+    document.documentElement.style.setProperty('--anim-speed', animSpeed);
+}
+
+// ─── UTILITY: delay scaled by speed ──────────────────────────────
+const D = (ms) => ms / animSpeed;
+
+// ─── ELEMENT HELPERS ─────────────────────────────────────────────
+function addAnimate(el, delay = 0) {
+    if (!el) return;
+    el.classList.remove('animate-in', 'visible');
+    setTimeout(() => {
+        el.classList.add('animate-in');
+        el.addEventListener('animationend', () => {
+            el.classList.remove('animate-in');
+            el.classList.add('visible');
+        }, { once: true });
+    }, delay);
+}
+
+function setVisible(el) {
+    if (!el) return;
+    el.classList.remove('animate-in');
+    el.classList.add('visible');
+}
+
+function clearAll(el) {
+    if (!el) return;
+    el.classList.remove('animate-in', 'visible');
+}
+
+// ─── FULL ANIMATION SEQUENCE ─────────────────────────────────────
+function runAnimation() {
+    const blueStrip   = document.getElementById('blue-strip');
+    const redStrip    = document.getElementById('red-strip');
+    const statsSection = document.getElementById('stats-section');
+    const leftPanel   = document.getElementById('left-panel');
+    const rightPanel  = document.getElementById('right-panel');
+    const statsCenter = document.getElementById('stats-center');
+    const flashEl     = document.getElementById('flash-overlay');
+    const corners     = ['corner-tl','corner-tr','corner-bl','corner-br'].map(id => document.getElementById(id));
+
+    const blueSlots = blueStrip.querySelectorAll('.hero-slot');
+    const redSlots  = redStrip.querySelectorAll('.hero-slot');
+    const indexBoxes = document.querySelectorAll('.index-box');
+    const statRows  = document.querySelectorAll('.stat-row');
+
+    // Flash intro
+    flashEl.classList.remove('flash');
+    void flashEl.offsetWidth;
+    flashEl.classList.add('flash');
+
+    // T=0: Strips fly in simultaneously
+    addAnimate(blueStrip, D(0));
+    addAnimate(redStrip,  D(0));
+
+    // T=150ms: Individual slots stagger in
+    blueSlots.forEach((slot, i) => addAnimate(slot, D(150 + i * 80)));
+    redSlots.forEach((slot, i)  => addAnimate(slot, D(150 + i * 80)));
+
+    // T=500ms: Stats section reveals (clip-path wipe)
+    addAnimate(statsSection, D(500));
+
+    // T=650ms: Corners appear
+    corners.forEach((c, i) => addAnimate(c, D(650 + i * 40)));
+
+    // T=700ms: Team panels slide in
+    addAnimate(leftPanel,  D(700));
+    addAnimate(rightPanel, D(700));
+
+    // T=850ms: Stats center fades in
+    addAnimate(statsCenter, D(850));
+
+    // T=950ms: Index boxes scale in
+    indexBoxes.forEach((box, i) => addAnimate(box, D(950 + i * 100)));
+
+    // T=1100ms: Stat rows stagger up
+    statRows.forEach((row, i) => addAnimate(row, D(1100 + i * 80)));
+
+    // T=1300ms+: Animate the bars
+    setTimeout(() => animateBars(), D(1300));
+}
+
+// ─── STATS-ONLY ANIMATION ────────────────────────────────────────
+function runStatsOnly() {
+    const statsSection = document.getElementById('stats-section');
+    const leftPanel   = document.getElementById('left-panel');
+    const rightPanel  = document.getElementById('right-panel');
+    const statsCenter = document.getElementById('stats-center');
+    const corners     = ['corner-tl','corner-tr','corner-bl','corner-br'].map(id => document.getElementById(id));
+    const indexBoxes  = document.querySelectorAll('.index-box');
+    const statRows    = document.querySelectorAll('.stat-row');
+
+    // Make strips visible instantly (no animation)
+    setVisible(document.getElementById('blue-strip'));
+    setVisible(document.getElementById('red-strip'));
+    document.querySelectorAll('.hero-slot').forEach(s => setVisible(s));
+
+    addAnimate(statsSection, D(0));
+    corners.forEach((c, i) => addAnimate(c, D(100 + i * 30)));
+    addAnimate(leftPanel,  D(150));
+    addAnimate(rightPanel, D(150));
+    addAnimate(statsCenter, D(300));
+    indexBoxes.forEach((box, i) => addAnimate(box, D(400 + i * 80)));
+    statRows.forEach((row, i)  => addAnimate(row, D(500 + i * 60)));
+    setTimeout(() => animateBars(), D(700));
+}
+
+// ─── BAR ANIMATION ───────────────────────────────────────────────
+function animateBars() {
+    document.querySelectorAll('.bar-fill-left, .bar-fill-right').forEach((bar, i) => {
+        const target = bar.dataset.target || '0';
+        bar.style.transition = `transform ${D(1200)}ms cubic-bezier(0.22, 1, 0.36, 1) ${i * D(40)}ms`;
+        bar.style.transform = `scaleX(${target})`;
+    });
+}
+
+// ─── RESET ───────────────────────────────────────────────────────
+function resetAll() {
+    const allAnimatable = document.querySelectorAll(
+        '.hero-strip, .hero-strip-bottom, .hero-slot, .stats-section, .team-panel, .stats-center, .stat-row, .index-box, .corner-tl, .corner-tr, .corner-bl, .corner-br'
+    );
+    allAnimatable.forEach(el => clearAll(el));
+
+    // Reset bar fills
+    document.querySelectorAll('.bar-fill-left, .bar-fill-right').forEach(bar => {
+        bar.style.transition = 'none';
+        bar.style.transform = 'scaleX(0)';
+    });
+
+    // Reset index displays
+    ['ci-blue','lr-blue','ci-red','lr-red'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = '—'; el.className = 'index-value'; }
+    });
+
+    // Reset stats center
+    const center = document.getElementById('stats-center');
+    if (center) center.innerHTML = '<div class="loading-text">Waiting for adjustment phase…</div>';
+
+    if (typeof window.resetDraftStats === 'function') window.resetDraftStats();
+}
+
+// ─── STAT BAR BUILDER ────────────────────────────────────────────
+const STATS = [
+    { key: 'earlyMidPotential', label: 'Early to Mid Game Potential' },
+    { key: 'lateGamePotential',  label: 'Late Game Potential' },
+    { key: 'damagePotential',    label: 'Damage Potential' },
+    { key: 'survivability',      label: 'Survivability' },
+    { key: 'controlAbility',     label: 'Control Ability' },
+    { key: 'pushAbility',        label: 'Push Ability' },
+    { key: 'teamCoordination',   label: 'Team Coordination' },
+];
+
+function buildStatsCenter(blueStats, redStats) {
+    const center = document.getElementById('stats-center');
+    center.innerHTML = '';
+    const MAX = 5;
+
+    STATS.forEach((stat) => {
+        const bVal = parseFloat(blueStats[stat.key]) || 0;
+        const rVal = parseFloat(redStats[stat.key])  || 0;
+
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+
+        const label = document.createElement('div');
+        label.className = 'stat-label';
+        label.textContent = stat.label;
+
+        const bars = document.createElement('div');
+        bars.className = 'stat-bars';
+
+        const bValEl = document.createElement('div');
+        bValEl.className = 'stat-val';
+        bValEl.textContent = bVal.toFixed(2);
+
+        const track = document.createElement('div');
+        track.className = 'bar-track';
+
+        const fillLeft = document.createElement('div');
+        fillLeft.className = 'bar-fill-left';
+        fillLeft.style.transform = 'scaleX(0)';
+        fillLeft.dataset.target  = (bVal / MAX).toString();
+
+        const fillRight = document.createElement('div');
+        fillRight.className = 'bar-fill-right';
+        fillRight.style.transform = 'scaleX(0)';
+        fillRight.dataset.target  = (rVal / MAX).toString();
+
+        const centerLine = document.createElement('div');
+        centerLine.className = 'bar-center-line';
+
+        track.appendChild(fillLeft);
+        track.appendChild(fillRight);
+        track.appendChild(centerLine);
+
+        const rValEl = document.createElement('div');
+        rValEl.className = 'stat-val right';
+        rValEl.textContent = rVal.toFixed(2);
+
+        bars.appendChild(bValEl);
+        bars.appendChild(track);
+        bars.appendChild(rValEl);
+        row.appendChild(label);
+        row.appendChild(bars);
+        center.appendChild(row);
+    });
+}
+
+function renderIndexes(data) {
+    const bci = parseFloat(data.blueTeam.counterIndex) || 0;
+    const rci = parseFloat(data.redTeam.counterIndex)  || 0;
+    const blr = parseFloat(data.blueTeam.lineUpRating) || 0;
+    const rlr = parseFloat(data.redTeam.lineUpRating)  || 0;
+
+    const ciBlue = document.getElementById('ci-blue');
+    const lrBlue = document.getElementById('lr-blue');
+    const ciRed  = document.getElementById('ci-red');
+    const lrRed  = document.getElementById('lr-red');
+
+    if (ciBlue) { ciBlue.textContent = (bci >= 0 ? '+' : '') + bci.toFixed(1); ciBlue.className = 'index-value ' + (bci >= 0 ? 'positive' : 'negative'); }
+    if (lrBlue) lrBlue.textContent = blr.toFixed(1);
+    if (ciRed)  { ciRed.textContent  = (rci >= 0 ? '+' : '') + rci.toFixed(1); ciRed.className  = 'index-value ' + (rci >= 0 ? 'positive' : 'negative'); }
+    if (lrRed)  lrRed.textContent  = rlr.toFixed(1);
+}
+
+// ─── DRAFT DATA FETCH ────────────────────────────────────────────
+const CACHE_KEY = 'draftData_cache';
+
+async function fetchDraftData() {
+    try {
+        const res = await fetch('/draft', { signal: AbortSignal.timeout(15000) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e) {}
+        return data;
+    } catch (e) {
+        console.warn('[postdraft] /draft fetch failed:', e.message);
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) return JSON.parse(cached);
+        } catch(e2) {}
+        return null;
+    }
+}
+
+// ─── TRIGGER SYSTEM (called by displayhero.js or externally) ─────
+let _statsAlreadyFetched = false;
+
+window.triggerDraftStats = async function() {
+    if (_statsAlreadyFetched) return;
+    _statsAlreadyFetched = true;
+
+    const center = document.getElementById('stats-center');
+    if (center) center.innerHTML = '<div class="loading-text">Analysing draft…</div>';
+
+    const data = await fetchDraftData();
+    if (!data) {
+        if (center) center.innerHTML = '<div class="loading-text">Could not load stats.</div>';
+        return;
+    }
+    renderIndexes(data);
+    buildStatsCenter(data.blueTeam.stats || {}, data.redTeam.stats || {});
+};
+
+window.resetDraftStats = function() {
+    _statsAlreadyFetched = false;
+    const center = document.getElementById('stats-center');
+    if (center) center.innerHTML = '<div class="loading-text">Waiting for adjustment phase…</div>';
+    ['ci-blue','lr-blue','ci-red','lr-red'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = '—'; el.className = 'index-value'; }
+    });
+};
+
+// ─── WEBSOCKET LISTENER ──────────────────────────────────────────
+(function connectWS() {
+    const ws = new WebSocket(`ws://${location.host}`);
+
+    ws.onmessage = (event) => {
+        try {
+            const msg = JSON.parse(event.data);
+
+            if (msg.type === 'postdraft_animate') {
+                if (msg.speed) setSpeed(msg.speed);
+                runAnimation();
+                window.triggerDraftStats();
+            }
+            else if (msg.type === 'postdraft_reset') {
+                resetAll();
+            }
+            else if (msg.type === 'postdraft_stats_only') {
+                if (msg.speed) setSpeed(msg.speed);
+                window.triggerDraftStats().then(() => runStatsOnly());
+            }
+            else if (msg.type === 'set_speed') {
+                setSpeed(msg.speed);
+            }
+        } catch(e) {}
+    };
+
+    ws.onclose = () => setTimeout(connectWS, 3000);
+})();
+
+// ─── POSTMESSAGE FALLBACK (for cross-window control) ─────────────
+window.addEventListener('message', (e) => {
+    const msg = e.data;
+    if (!msg || !msg.type) return;
+    if (msg.type === 'postdraft_animate') { if (msg.speed) setSpeed(msg.speed); runAnimation(); }
+    if (msg.type === 'postdraft_reset')   { resetAll(); }
+    if (msg.type === 'postdraft_stats_only') { if (msg.speed) setSpeed(msg.speed); runStatsOnly(); }
+    if (msg.type === 'set_speed') setSpeed(msg.speed);
+});
+
+// ─── AUTO PLAY ANIMATION ON PAGE LOAD ────────────────────────────
+// ─── AUTO PLAY ANIMATION ON PAGE LOAD ────────────────────────────
+window.addEventListener('load', async () => {
+    // Reset everything first
+    resetAll();
+
+    // Load/build the stats FIRST
+    await window.triggerDraftStats();
+
+    // Now the .stat-row elements exist,
+    // so runAnimation() can animate them correctly
+    setTimeout(() => {
+        runAnimation();
+    }, 100);
+});
+
+</script>
+
+
+</body>
+</html>

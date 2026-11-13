@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0" />
+  <title>Echoes of Destiny — Caster Overlay</title>
+  <link rel="stylesheet" href="casters.css" />
+</head>
+<body>
+  <!--
+    OBS Browser Source:
+      Width: 1920
+      Height: 1080
+      FPS: 60 (recommended)
+
+    IMPORTANT:
+    The caster windows are intentionally EMPTY/TRANSPARENT.
+    Put your camera/video sources BELOW this Browser Source in OBS.
+  -->
+
+  <main class="overlay">
+
+    <!-- Subtle tournament watermark -->
+    <img class="corner-logo" src="assets/Other/eod_logo_nobg.png" alt="Echoes of Destiny" />
+
+    <!-- Upper caster section -->
+    <section class="casters">
+
+      <div class="caster caster-left">
+        <div class="caster-frame">
+          <!-- Transparent video area: place OBS video/camera source underneath -->
+          <div class="caster-window"></div>
+
+          <div class="nameplate">
+            <span>HUSKKIIEE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="caster caster-right">
+        <div class="caster-frame">
+          <!-- Transparent video area: place OBS video/camera source underneath -->
+          <div class="caster-window"></div>
+
+          <div class="nameplate">
+            <span>RENMAR</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Lower title panel -->
+    <section class="title-panel">
+      <div class="ornament ornament-left"></div>
+      <div class="ornament ornament-right"></div>
+
+      <div class="title-content">
+        <img class="title-logo" src="assets/eod_logo_nobg.png" alt="Echoes of Destiny — Second Resonance" />
+        <div class="season-label">ECHOES OF DESTINY</div>
+        <div class="season-subtitle">SECOND RESONANCE • SEASON 2</div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>

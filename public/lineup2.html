@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920,height=1080,initial-scale=1.0">
+<title>Team Line-Up — OBS</title>
+<style>
+@font-face{
+  font-family:Custom;
+  src:url('Assets/Font/custom_font.ttf') format('truetype');
+}
+:root{
+  --blue:#1f6bff;          /* name banner / accents */
+  --blue-dark:#0a3fb5;
+  --blue-soft:#7db4ff;
+  --ink:#05070c;           /* black bars */
+  --paper:#070b14;         /* fog + background tone */
+  --lane-box:#fff;         /* box behind the lane icon (use a dark colour if your lane icons are white) */
+  --font:Custom,'Arial Black',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:1920px;height:1080px;overflow:hidden;background:transparent;
+  font-family:var(--font);color:#fff
+}
+body{position:relative}
+.scene{position:absolute;inset:0;overflow:hidden;background:var(--paper)}
+
+/* ───────── Background ───────── */
+/* Drop Assets/Other/lineup_bg.png in to replace the generated one */
+.bg{position:absolute;inset:0;z-index:0}
+.bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* deep arena base: cool navy floor, lighter column of light up the centre */
+.bg-base{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 52% 70% at 50% 34%,#12336e 0%,#0a1a3c 45%,#05070c 100%),
+    linear-gradient(180deg,#081228 0%,#05070c 70%,#02040a 100%);
+}
+/* angled light shards sweeping from the top corners */
+.bg-shards{
+  position:absolute;inset:0;opacity:.5;
+  background:
+    linear-gradient(104deg,transparent 18%,rgba(36,169,252,.16) 21%,transparent 24%),
+    linear-gradient(104deg,transparent 30%,rgba(31,107,255,.10) 32%,transparent 35%),
+    linear-gradient(-104deg,transparent 18%,rgba(36,169,252,.14) 21%,transparent 24%),
+    linear-gradient(-104deg,transparent 31%,rgba(31,107,255,.09) 33%,transparent 36%);
+}
+/* fine grid, fading out toward the bottom */
+.bg-grid{
+  position:absolute;inset:0;opacity:.18;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(125,180,255,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(125,180,255,.16) 1px,transparent 1px);
+  background-size:96px 96px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 55%,transparent 85%);
+          mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.45) 55%,transparent 85%);
+}
+/* soft spotlight behind the centre player + corner haze + vignette */
+.bg-glow{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 34% 46% at 50% 40%,rgba(36,169,252,.30),transparent 70%),
+    radial-gradient(ellipse 42% 28% at 10% 18%,rgba(31,107,255,.14),transparent 72%),
+    radial-gradient(ellipse 42% 28% at 90% 16%,rgba(31,107,255,.12),transparent 72%),
+    radial-gradient(ellipse 100% 100% at 50% 48%,transparent 50%,rgba(0,0,0,.72) 100%);
+}
+/* thin horizon line under the roster */
+.bg-horizon{
+  position:absolute;left:0;right:0;top:838px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(125,180,255,.45) 18%,rgba(36,169,252,.75) 50%,rgba(125,180,255,.45) 82%,transparent);
+  box-shadow:0 0 26px rgba(36,169,252,.45)
+}
+
+/* ───────── Stage / teams ───────── */
+.stage{position:absolute;inset:0;z-index:5}
+.team{
+  position:absolute;inset:0;visibility:hidden;opacity:0;
+  transform:translateX(65px)
+}
+.team.active{visibility:visible;animation:teamIn .85s cubic-bezier(.18,.78,.18,1) forwards}
+.team.exit{visibility:visible;animation:teamOut .65s ease forwards}
+@keyframes teamIn{from{opacity:0;transform:translateX(65px)}to{opacity:1;transform:translateX(0)}}
+@keyframes teamOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-65px)}}
+
+/* Giant team tag behind the players */
+.giant{
+  position:absolute;left:0;top:245px;width:1920px;text-align:center;
+  z-index:1;pointer-events:none
+}
+.giant span{
+  display:inline-block;white-space:nowrap;line-height:1;
+  font-weight:900;text-transform:uppercase;letter-spacing:-6px;
+  color:var(--accent,#1f6bff);
+  background:linear-gradient(180deg,var(--accent,#1f6bff) 25%,#0a3fb5 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  transform:translateY(-.13em)
+}
+
+/* Players */
+.players{position:absolute;inset:0;z-index:2}
+.player{
+  position:absolute;opacity:0;transform:translateY(60px);
+}
+.team.active .player{animation:playerIn .75s cubic-bezier(.2,.85,.2,1) forwards}
+@keyframes playerIn{to{opacity:1;transform:translateY(0)}}
+.player img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center top;
+  -webkit-mask-image:linear-gradient(#000 60%,transparent 97%);
+          mask-image:linear-gradient(#000 60%,transparent 97%);
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.6));
+  font-size:0;color:transparent
+}
+/* outer / inner / centre sizing, centred on x = 240, 600, 960, 1320, 1680 */
+.p1{left:30px;  top:195px;width:420px;height:740px;z-index:1}
+.p2{left:370px; top:150px;width:460px;height:790px;z-index:2}
+.p3{left:640px; top:118px;width:640px;height:830px;z-index:4}
+.p4{left:1090px;top:150px;width:460px;height:790px;z-index:2}
+.p5{left:1470px;top:195px;width:420px;height:740px;z-index:1}
+.team.active .p3{animation-delay:.05s}
+.team.active .p2,.team.active .p4{animation-delay:.13s}
+.team.active .p1,.team.active .p5{animation-delay:.21s}
+
+/* Mist that swallows the bottom of every player */
+.fog{
+  position:absolute;left:0;right:0;top:640px;bottom:0;z-index:3;pointer-events:none;
+  background:
+    radial-gradient(ellipse 40% 30% at 20% 62%,rgba(31,107,255,.22),transparent 70%),
+    radial-gradient(ellipse 40% 30% at 80% 58%,rgba(31,107,255,.22),transparent 70%),
+    linear-gradient(180deg,rgba(5,8,15,0) 0%,rgba(5,8,15,.78) 42%,rgba(4,6,12,.98) 100%)
+}
+
+/* Name plates */
+.plates{position:absolute;inset:0;z-index:6}
+.plate{
+  position:absolute;width:300px;height:56px;opacity:0;transform:translateY(30px)
+}
+.team.active .plate{animation:plateIn .6s cubic-bezier(.2,.85,.2,1) forwards}
+@keyframes plateIn{to{opacity:1;transform:translateY(0)}}
+.team.active .plate.p3{animation-delay:.35s}
+.team.active .plate.p2,.team.active .plate.p4{animation-delay:.43s}
+.team.active .plate.p1,.team.active .plate.p5{animation-delay:.51s}
+.plate.p1{left:90px; top:650px}
+.plate.p2{left:450px;top:694px}
+.plate.p3{left:810px;top:725px}
+.plate.p4{left:1170px;top:694px}
+.plate.p5{left:1530px;top:650px}
+
+.pl-main{
+  position:absolute;left:60px;top:0;width:240px;height:52px;
+  background:linear-gradient(90deg,var(--blue-dark),var(--blue) 30%,#0d63f2);
+  display:flex;align-items:center;justify-content:center;padding-left:8px;
+}
+.pl-name{
+  font-size:27px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;
+  text-shadow:0 1px 0 rgba(0,0,0,.25)
+}
+.ic{
+  position:absolute;display:flex;align-items:center;justify-content:center;overflow:hidden
+}
+.ic svg,.ic img{width:62%;height:62%;object-fit:contain;display:block}
+.ic-main{
+  left:0;top:-2px;width:64px;height:56px;background:var(--lane-box);color:#111;
+  clip-path:polygon(0 0,100% 0,88% 100%,0 100%);padding-right:6px;
+  box-shadow:0 4px 10px rgba(0,0,0,.2)
+}
+/* no lane in the data (or its image is missing): banner grows over the icon slot */
+.plate.no-lane .pl-main{left:0;width:300px;padding-left:0}
+
+/* Bottom info row: event · emblem · match */
+.info{
+  position:absolute;left:0;right:0;top:848px;height:150px;z-index:7;
+  display:flex;align-items:center;justify-content:center
+}
+.info .txt{
+  width:560px;font-size:34px;font-weight:900;letter-spacing:1.2px;
+  text-transform:uppercase;color:#eaf2ff;white-space:nowrap;
+}
+.info .l{text-align:right;padding-right:48px}
+.info .r{text-align:left;padding-left:48px}
+.emblem{width:156px;height:150px;display:flex;align-items:center;justify-content:center}
+.team-logo{
+  max-width:100%;max-height:100%;object-fit:contain;opacity:0;transform:scale(.7);font-size:0;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(31,107,255,.35))
+}
+.team.active .team-logo{animation:logoIn .75s .3s cubic-bezier(.2,.85,.2,1) forwards}
+@keyframes logoIn{to{opacity:1;transform:scale(1)}}
+.team.active .info .txt{animation:txtIn .6s .45s ease both}
+@keyframes txtIn{from{opacity:0}to{opacity:1}}
+
+/* ───────── Header ───────── */
+.top-tl{
+  position:absolute;left:44px;top:42px;z-index:20;
+  font:700 12px Arial,sans-serif;letter-spacing:1.4px;color:rgba(255,255,255,.88);
+  display:flex;align-items:center;gap:10px;text-transform:uppercase
+}
+.top-tl i{display:block;width:14px;height:10px;border:2px solid rgba(255,255,255,.85);border-radius:2px}
+.top-tr{
+  position:absolute;right:70px;top:42px;z-index:20;
+  font:700 13px Arial,sans-serif;letter-spacing:1.6px;color:#dbe8ff;
+  display:flex;align-items:center;gap:14px;text-transform:uppercase
+}
+.top-tr .dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue)}
+.top-tr .fwd{font-size:13px;letter-spacing:-2px}
+.header{
+  position:absolute;left:0;right:0;top:56px;height:66px;z-index:20;
+  display:flex;align-items:center;justify-content:center;gap:20px
+}
+.sponsor{
+  width:166px;height:62px;background:var(--paper);border:3px solid var(--blue);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;padding:7px 12px;
+}
+.sponsor img{max-width:100%;max-height:100%;object-fit:contain}
+.title{
+  font-size:60px;font-weight:900;letter-spacing:1px;line-height:1;color:#fff;
+  text-transform:uppercase;white-space:nowrap
+}
+
+/* Bottom-left stage tag */
+.tag{
+  position:absolute;left:40px;top:1029px;z-index:20;
+  display:flex;align-items:center;gap:12px;
+  font:900 15px Arial,sans-serif;letter-spacing:1.2px;color:#dbe8ff;text-transform:uppercase
+}
+.tag b{font-size:20px;font-weight:700;line-height:1}
+.tag .rule{width:190px;height:1px;background:#2c4c86;margin-left:52px}
+
+.no-data{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:700 15px Arial;letter-spacing:5px;color:#5d7bb0;z-index:6
+}
+</style>
+</head>
+
+<body>
+<div class="scene">
+
+  <!-- Background: drop Assets/Other/lineup_bg.png in to replace the generated one -->
+  <div class="bg">
+    <div class="bg-base"></div>
+    <div class="bg-shards"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-horizon"></div>
+    <img src="Assets/Other/lineup_bg.png" alt="" onerror="this.remove()">
+  </div>
+
+  <main class="stage" id="stage">
+    <div class="no-data" id="noData">WAITING FOR MATCH DATA</div>
+  </main>
+
+  <div class="top-tl"><span id="topLeft"></span><span id="topIdx"></span></div>
+
+  <header class="header">
+    <div class="sponsor" id="sponsor"><img src="Assets/Other/sponsor.png" alt="" onerror="document.getElementById('sponsor').style.display='none'"></div>
+    <div class="title">TEAM LINE-UP</div>
+  </header>
+
+  <div class="top-tr"><span class="fwd"></span><span id="topRight">YOUR SLOGAN</span><span class=""></span></div>
+
+  <div class="tag"><b>+</b><span id="stageTag">REGULAR SEASON</span><span class="rule"></span></div>
+</div>
+
+<script>
+/* ═════════════ EDIT THESE ═════════════ */
+const CONFIG = {
+  TOP_LEFT_TEXT : '',          // small text on the top-left
+  TOP_RIGHT_TEXT: 'RIVAL YOUR ETERNITY',             // small text top-right
+  EVENT_TEXT    : 'ETERNAL RIVALS S01', // bottom, left of the logo
+  MATCH_TEXT    : 'GRAND FINALS',  // bottom, right of the logo
+  STAGE_TEXT    : '20 - 09 - 2026',            // bottom-left corner tag
+  DEFAULT_TEAM_COLOR: '#1f6bff',               // giant tag colour (blue/black theme)
+  USE_TEAM_COLOR: false,                       // true = use the team's own colour from the data when it has one
+  LANE_PATH     : 'Assets/lane/',              // lane icons: Assets/lane/<lane>.png (lane comes from playerlist[i].lane)
+  POLL_MS       : 500,                         // how often the data is checked (only re-renders when something changed)
+  DISPLAY_TIME  : 10000,
+  TRANSITION_TIME: 700
+};
+/* ══════════════════════════════════════ */
+
+const DEMO = new URLSearchParams(location.search).has('demo');   // open …/team-lineup.html?demo to preview
+const DISPLAY_TIME = CONFIG.DISPLAY_TIME;
+const TRANSITION_TIME = CONFIG.TRANSITION_TIME;
+
+const state = { teams:[], activeIndex:0, timer:null, cycleStarted:false, signature:'', laneSignature:'' };
+
+/* ── lane icon (from playerlist[i].lane) ── */
+function setLane(plate,player){
+  const box=plate.querySelector('.ic-main');
+  const img=box.querySelector('img');
+  const lane=(player && player.lane) ? String(player.lane).trim().toLowerCase() : '';
+
+  img.onerror=null;
+  if(lane && lane!=='none'){
+    plate.classList.remove('no-lane');
+    box.style.display='';
+    // image missing in Assets/lane → hide the icon instead of showing a broken image
+    img.onerror=function(){this.onerror=null;box.style.display='none';plate.classList.add('no-lane')};
+    img.src=`${CONFIG.LANE_PATH}${lane}.png`;
+  }else{
+    plate.classList.add('no-lane');
+    box.style.display='none';
+    img.removeAttribute('src');
+  }
+}
+function updateLanes(){
+  document.querySelectorAll('.team').forEach((el,ti)=>{
+    const t=state.teams[ti]; if(!t) return;
+    el.querySelectorAll('.plate').forEach((pl,i)=>{ if(t.players[i]) setLane(pl,t.players[i]); });
+  });
+}
+function laneSignatureOf(teams){
+  return JSON.stringify(teams.map(t=>t.players.map(p=>p.lane||'')));
+}
+
+/* ── data ── */
+function normalizeTeam(team, side){
+  if(!team) return null;
+  const players = Array.isArray(team.playerlist)
+    ? team.playerlist.filter(p => p && p.name && String(p.name).trim()).slice(0,5)
+    : [];
+  return {
+    side,
+    name : team.teamname || 'TEAM',
+    tag  : team.tag || team.short || team.shortname || team.teamshort || team.teamname || 'TEAM',
+    color: (CONFIG.USE_TEAM_COLOR && (team.color || team.teamcolor || team.primarycolor)) || CONFIG.DEFAULT_TEAM_COLOR,
+    logo : team.logo || 'Assets/Other/nologo.png',
+    players
+  };
+}
+function signatureOf(teams){
+  return JSON.stringify(teams.map(t => ({
+    side:t.side,name:t.name,tag:t.tag,color:t.color,logo:t.logo,
+    players:t.players.map(p=>p.name)
+  })));
+}
+
+/* ── build ── */
+function makeTeam(team,index){
+  const el=document.createElement('section');
+  el.className='team';
+  el.dataset.index=index;
+  el.style.setProperty('--accent',team.color);
+  const slots=[1,2,3,4,5];
+  el.innerHTML=`
+    <div class="giant"><span></span></div>
+    <div class="players">
+      ${slots.map(n=>`<article class="player p${n}"><img alt=""></article>`).join('')}
+    </div>
+    <div class="fog"></div>
+    <div class="plates">
+      ${slots.map(n=>`
+        <div class="plate p${n}">
+          <div class="pl-main"><div class="pl-name"></div></div>
+          <div class="ic ic-main"><img alt=""></div>
+        </div>`).join('')}
+    </div>
+    <div class="info">
+      <div class="txt l"></div>
+      <div class="emblem"><img class="team-logo" alt="Team logo"></div>
+      <div class="txt r"></div>
+    </div>`;
+  populateTeam(el,team);
+  return el;
+}
+
+function populateTeam(el,team){
+  el.querySelector('.giant span').textContent=team.tag;
+  el.querySelector('.info .l').textContent=CONFIG.EVENT_TEXT;
+  el.querySelector('.info .r').textContent=CONFIG.MATCH_TEXT;
+
+  const logo=el.querySelector('.team-logo');
+  logo.src=team.logo;
+  logo.onerror=()=>{logo.onerror=null;logo.src='Assets/Other/nologo.png'};
+
+  const cards=[...el.querySelectorAll('.player')];
+  const plates=[...el.querySelectorAll('.plate')];
+  cards.forEach((card,i)=>{
+    const p=team.players[i], plate=plates[i];
+    if(!p){card.style.display='none';plate.style.display='none';return}
+    card.style.display='';plate.style.display='';
+
+    const img=card.querySelector('img');
+    img.src=`Assets/player/${encodeURIComponent(p.name)}.png`;
+    img.alt=p.name;
+    img.onerror=()=>{img.onerror=null;img.src='Assets/player/noplayer.png'};
+
+    plate.querySelector('.pl-name').textContent=p.name;
+
+    setLane(plate,p);
+  });
+  fitGiant(el);
+}
+
+/* Scale the big team tag so it spans the stage */
+function fitGiant(el){
+  const span=el.querySelector('.giant span');
+  if(!span)return;
+  const MAXW=1760, MAXFS=600;
+  span.style.fontSize='200px';
+  const w=span.getBoundingClientRect().width||1;
+  span.style.fontSize=Math.min(MAXFS,200*MAXW/w)+'px';
+}
+
+function render(){
+  const stage=document.getElementById('stage');
+  stage.querySelectorAll('.team').forEach(x=>x.remove());
+  if(!state.teams.length){
+    document.getElementById('noData').style.display='flex';
+    return;
+  }
+  document.getElementById('noData').style.display='none';
+  state.teams.forEach((team,i)=>stage.appendChild(makeTeam(team,i)));
+  state.activeIndex=Math.min(state.activeIndex,state.teams.length-1);
+  showTeam(state.activeIndex,false);
+}
+
+function showTeam(index,animate=true){
+  const teams=[...document.querySelectorAll('.team')];
+  if(!teams.length)return;
+  const next=teams[index];
+  const current=document.querySelector('.team.active');
+
+  if(current && current!==next){
+    current.classList.remove('active');
+    if(animate){
+      current.classList.add('exit');
+      setTimeout(()=>current.classList.remove('exit'),TRANSITION_TIME);
+    }
+  }
+  next.classList.remove('exit');
+  void next.offsetWidth;
+  next.classList.add('active');
+
+  document.getElementById('topLeft').textContent=CONFIG.TOP_LEFT_TEXT;
+  document.getElementById('topRight').textContent=CONFIG.TOP_RIGHT_TEXT;
+  document.getElementById('stageTag').textContent=CONFIG.STAGE_TEXT;
+  document.getElementById('topIdx').textContent=String(index+1).padStart(2,'0');
+}
+
+function startCycle(){
+  clearTimeout(state.timer);
+  state.cycleStarted=true;
+  showTeam(state.activeIndex,false);
+  if(state.teams.length>1){
+    state.timer=setTimeout(()=>{
+      state.activeIndex=(state.activeIndex+1)%state.teams.length;
+      showTeam(state.activeIndex,true);
+      startCycle();
+    },DISPLAY_TIME);
+  }
+}
+
+async function fetchDataAndUpdate(){
+  if(DEMO)return;
+  try{
+    const res=await fetch('/api/matchdata',{cache:'no-store'});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    const td=data?.teamdata;
+    if(!td)return;
+
+    const teams=[
+      normalizeTeam(td.blueteam,'BLUE SIDE'),
+      normalizeTeam(td.redteam,'RED SIDE')
+    ].filter(Boolean);
+
+    const sig=signatureOf(teams);
+    const lsig=laneSignatureOf(teams);
+    state.teams=teams;
+
+    if(sig!==state.signature || !state.cycleStarted){
+      state.signature=sig;
+      state.laneSignature=lsig;
+      state.activeIndex=0;
+      render();
+      startCycle();
+    }else if(lsig!==state.laneSignature){
+      state.laneSignature=lsig;
+      updateLanes();          // lane changed: swap icons only, no restart of the animation
+    }
+  }catch(e){console.error('Match data:',e)}
+}
+
+let socket=null,reconnectTimer=null;
+function connectWebSocket(){
+  if(DEMO)return;
+  const proto=location.protocol==='https:'?'wss':'ws';
+  try{
+    socket=new WebSocket(`${proto}://${location.host}`);
+    socket.onopen=()=>{clearTimeout(reconnectTimer);fetchDataAndUpdate()};
+    socket.onmessage=event=>{
+      try{
+        const msg=JSON.parse(event.data);
+        if(msg.type==='matchdata_update'||msg.type==='matchdata'||msg.type==='update')
+          fetchDataAndUpdate();
+      }catch(e){}
+    };
+    socket.onclose=()=>{
+      clearTimeout(reconnectTimer);
+      reconnectTimer=setTimeout(connectWebSocket,3000);
+    };
+    socket.onerror=()=>{try{socket.close()}catch(e){}};
+  }catch(e){reconnectTimer=setTimeout(connectWebSocket,3000)}
+}
+
+/* Re-fit the giant tag once the custom font has loaded */
+if(document.fonts&&document.fonts.ready){
+  document.fonts.ready.then(()=>document.querySelectorAll('.team').forEach(fitGiant));
+}
+
+if(DEMO){
+  state.teams=[
+    {side:'BLUE SIDE',name:'Team One',tag:'TWIS',color:CONFIG.DEFAULT_TEAM_COLOR,logo:'Assets/Other/nologo.png',
+     players:['Lansu','Sensu1','Sionnn','Tracyyy','Bennyqt'].map((name,i)=>({name,lane:['exp','jungle','mid','gold','roam'][i]}))},
+    {side:'RED SIDE',name:'Team Two',tag:'RED',color:CONFIG.DEFAULT_TEAM_COLOR,logo:'Assets/Other/nologo.png',
+     players:['Player 1','Player 2','Player 3','Player 4','Player 5'].map((name,i)=>({name,lane:['exp','jungle','mid','gold','roam'][i]}))}
+  ];
+  render();startCycle();
+}else{
+  fetchDataAndUpdate();
+  connectWebSocket();
+  setInterval(fetchDataAndUpdate,CONFIG.POLL_MS);
+}
+</script>
+</body>
+</html>

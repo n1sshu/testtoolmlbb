@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920,height=1080,initial-scale=1.0">
+<title>Team Line-Up (7 Players) — OBS</title>
+<style>
+@font-face{
+  font-family:Custom;
+  src:url('Assets/Font/custom_font.ttf') format('truetype');
+}
+:root{
+  --blue:#1f6bff;
+  --blue-dark:#0a3fb5;
+  --blue-soft:#7db4ff;
+  --ink:#05070c;
+  --paper:#070b14;
+  --font:Custom,'Arial Black',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:1920px;height:1080px;overflow:hidden;background:transparent;
+  font-family:var(--font);color:#fff
+}
+body{position:relative}
+.scene{position:absolute;inset:0;overflow:hidden;background:var(--paper)}
+
+/* ───────── Background: hex mesh + funnel slabs + floor rings (static) ───────── */
+/* Drop Assets/Other/lineup_bg.png in to replace the generated one */
+.bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+.bg-base{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 62% at 50% 62%,#0d2a5e 0%,#071634 48%,#03060f 100%);
+}
+/* hexagon mesh, only visible around the centre */
+.bg-hex{
+  position:absolute;inset:0;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%237db4ff' stroke-opacity='.30' stroke-width='1.4'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%237db4ff' stroke-opacity='.30' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-size:67px 120px;
+  -webkit-mask-image:radial-gradient(ellipse 58% 60% at 50% 52%,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+          mask-image:radial-gradient(ellipse 58% 60% at 50% 52%,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+}
+/* two big slanted slabs opening like a funnel behind the roster */
+.bg-slab{
+  position:absolute;top:-8%;bottom:-8%;width:30%;
+}
+.bg-slab.a{
+  left:-4%;transform:skewX(16deg);
+  background:linear-gradient(180deg,rgba(31,107,255,.26),rgba(10,63,181,.04) 85%);
+  border-right:2px solid rgba(125,180,255,.35);
+}
+.bg-slab.b{
+  right:-4%;transform:skewX(-16deg);
+  background:linear-gradient(180deg,rgba(31,107,255,.26),rgba(10,63,181,.04) 85%);
+  border-left:2px solid rgba(125,180,255,.35);
+}
+/* a second, thinner pair for depth */
+.bg-slab.c{
+  left:23%;width:2px;transform:skewX(16deg);
+  background:linear-gradient(180deg,rgba(125,180,255,.5),transparent 80%);
+}
+.bg-slab.d{
+  right:23%;width:2px;transform:skewX(-16deg);
+  background:linear-gradient(180deg,rgba(125,180,255,.5),transparent 80%);
+}
+/* light column behind the centre player */
+.bg-glow{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 26% 52% at 50% 42%,rgba(36,169,252,.30),transparent 72%),
+    radial-gradient(ellipse 100% 100% at 50% 50%,transparent 52%,rgba(0,0,0,.70) 100%);
+}
+/* stage floor: concentric rings receding away from the viewer */
+.bg-floor{
+  position:absolute;left:50%;top:700px;width:2300px;height:520px;
+  transform:translateX(-50%);border-radius:50%;
+  background:repeating-radial-gradient(ellipse at center,transparent 0 44px,rgba(125,180,255,.34) 45px 47px);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 0%,rgba(0,0,0,.5) 40%,transparent 70%);
+          mask-image:radial-gradient(ellipse at center,#000 0%,rgba(0,0,0,.5) 40%,transparent 70%);
+}
+.bg-floor-glow{
+  position:absolute;left:50%;top:840px;width:1500px;height:240px;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(36,169,252,.38),transparent 68%);
+}
+
+/* ───────── Team ───────── */
+.stage{position:absolute;inset:0;z-index:5}
+.team{position:absolute;inset:0}
+
+/* Giant team tag behind the players */
+.giant{
+  position:absolute;left:0;top:245px;width:1920px;text-align:center;
+  z-index:1;pointer-events:none
+}
+.giant span{
+  display:inline-block;white-space:nowrap;line-height:1;
+  font-weight:900;text-transform:uppercase;letter-spacing:-6px;
+  color:var(--accent,#1f6bff);
+  background:linear-gradient(180deg,var(--accent,#1f6bff) 25%,#0a3fb5 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  transform:translateY(-.13em)
+}
+
+/* Players (positions are set from JS so any count from 1 to 7 is centred) */
+.players{position:absolute;inset:0;z-index:2}
+.player{position:absolute}
+.player img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center top;
+  -webkit-mask-image:linear-gradient(#000 60%,transparent 97%);
+          mask-image:linear-gradient(#000 60%,transparent 97%);
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.6));
+  font-size:0;color:transparent
+}
+
+/* Mist at the bottom of every player (kept light so the floor rings show through) */
+.fog{
+  position:absolute;left:0;right:0;top:660px;bottom:0;z-index:3;pointer-events:none;
+  background:
+    radial-gradient(ellipse 42% 30% at 20% 60%,rgba(31,107,255,.18),transparent 70%),
+    radial-gradient(ellipse 42% 30% at 80% 60%,rgba(31,107,255,.18),transparent 70%),
+    linear-gradient(180deg,rgba(4,8,20,0) 0%,rgba(4,8,20,.50) 45%,rgba(4,8,20,.72) 100%)
+}
+
+/* Name plates (no lane icon: the whole banner is the name) */
+.plates{position:absolute;inset:0;z-index:6}
+.plate{position:absolute;height:54px}
+.pl-main{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--blue-dark),var(--blue) 35%,#0d63f2);
+  clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;padding:0 26px;
+}
+.pl-main::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:var(--blue-soft);opacity:.85
+}
+.pl-name{
+  display:block;width:max-content;
+  font-size:27px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  white-space:nowrap;line-height:1;
+  text-shadow:0 1px 0 rgba(0,0,0,.25)
+}
+/* optional small label above a plate (SUB, COACH...) */
+.pl-role{
+  position:absolute;left:50%;top:-25px;transform:translateX(-50%);
+  padding:3px 14px 2px;background:var(--ink);border:1px solid var(--blue);
+  font:700 13px Arial,sans-serif;letter-spacing:2px;color:var(--blue-soft);
+  text-transform:uppercase;white-space:nowrap
+}
+
+/* Bottom info row: event · emblem · match */
+.info{
+  position:absolute;left:0;right:0;top:848px;height:150px;z-index:7;
+  display:flex;align-items:center;justify-content:center
+}
+.info .txt{
+  width:560px;font-size:34px;font-weight:900;letter-spacing:1.2px;
+  text-transform:uppercase;color:#eaf2ff;white-space:nowrap;
+}
+.info .l{text-align:right;padding-right:48px}
+.info .r{text-align:left;padding-left:48px}
+.emblem{width:156px;height:150px;display:flex;align-items:center;justify-content:center}
+.team-logo{
+  max-width:100%;max-height:100%;object-fit:contain;font-size:0;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(31,107,255,.35))
+}
+
+/* ───────── Header ───────── */
+.top-tl{
+  position:absolute;left:44px;top:42px;z-index:20;
+  font:700 12px Arial,sans-serif;letter-spacing:1.4px;color:rgba(255,255,255,.88);
+  text-transform:uppercase
+}
+.top-tr{
+  position:absolute;right:70px;top:42px;z-index:20;
+  font:700 13px Arial,sans-serif;letter-spacing:1.6px;color:#dbe8ff;
+  display:flex;align-items:center;gap:14px;text-transform:uppercase
+}
+.top-tr .dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue)}
+.header{
+  position:absolute;left:0;right:0;top:56px;height:66px;z-index:20;
+  display:flex;align-items:center;justify-content:center;gap:20px
+}
+.sponsor{
+  width:166px;height:62px;background:var(--paper);border:3px solid var(--blue);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;padding:7px 12px;
+}
+.sponsor img{max-width:100%;max-height:100%;object-fit:contain}
+.title{
+  font-size:60px;font-weight:900;letter-spacing:1px;line-height:1;color:#fff;
+  text-transform:uppercase;white-space:nowrap
+}
+
+/* Bottom-left stage tag */
+.tag{
+  position:absolute;left:40px;top:1029px;z-index:20;
+  display:flex;align-items:center;gap:12px;
+  font:900 15px Arial,sans-serif;letter-spacing:1.2px;color:#dbe8ff;text-transform:uppercase
+}
+.tag b{font-size:20px;font-weight:700;line-height:1}
+.tag .rule{width:190px;height:1px;background:#2c4c86;margin-left:52px}
+</style>
+</head>
+
+<body>
+<div class="scene">
+
+  <div class="bg">
+    <div class="bg-base"></div>
+    <div class="bg-hex"></div>
+    <div class="bg-slab a"></div>
+    <div class="bg-slab b"></div>
+    <div class="bg-slab c"></div>
+    <div class="bg-slab d"></div>
+    <div class="bg-glow"></div>
+    <div class="bg-floor"></div>
+    <div class="bg-floor-glow"></div>
+    <img src="Assets/Other/lineup_bg.png" alt="" onerror="this.remove()">
+  </div>
+
+  <main class="stage" id="stage"></main>
+
+  <div class="top-tl" id="topLeft"></div>
+
+  <header class="header">
+    <div class="sponsor" id="sponsor"><img src="Assets/Other/sponsor.png" alt="" onerror="document.getElementById('sponsor').style.display='none'"></div>
+    <div class="title" id="title">CATALYST ESPORTS</div>
+  </header>
+
+  <div class="top-tr"><span class="dot"></span><span id="topRight"></span></div>
+
+  <div class="tag"><b>+</b><span id="stageTag"></span><span class="rule"></span></div>
+</div>
+
+<script>
+/* ═════════════ EDIT THESE ═════════════ */
+const CONFIG = {
+  TITLE_TEXT    : 'CHAMPIONS',
+  TOP_LEFT_TEXT : '',                       // small text on the top-left
+  TOP_RIGHT_TEXT: '',    // small text top-right
+  EVENT_TEXT    : 'ETERNAL RIVALS S01',     // bottom, left of the logo
+  MATCH_TEXT    : 'CATALYST ESPORTS',           // bottom, right of the logo
+  STAGE_TEXT    : 'Monarchy Esports',         // bottom-left corner tag
+  DEFAULT_TEAM_COLOR: '#1f6bff',            // giant tag colour (blue/black theme)
+  PLAYER_PATH   : 'Assets/player/',         // photos: Assets/player/<name>.png  (noplayer.png is the fallback)
+
+  /* ── THE TEAM ──
+     Up to 7 players. Add or delete lines freely (1 to 7 players stay centred).
+     A player can be just a name, or an object:  { name:'Name', img:'Assets/player/custom.png', role:'SUB' }
+       img  → optional, use a specific photo instead of Assets/player/<name>.png
+       role → optional, small label above the name plate (SUB, COACH, etc.) */
+  TEAM: {
+    tag  : 'CHAMPIONS',                          // giant text behind the players
+    logo : 'Assets/Other/tclogo.png',
+    color: '',                              // optional, e.g. '#e8203a' (leave empty for the default blue)
+    players: [
+      'lostlove',
+      'skyzone',
+      'deadzone',
+      'badboy',
+      'maliya',
+      { name:'zeyrox' },
+      { name:'gaara'}
+    ]
+  }
+};
+/* ══════════════════════════════════════ */
+
+const MAX_PLAYERS = 7;
+const NOLOGO = 'Assets/Other/nologo.png';
+const $ = id => document.getElementById(id);
+
+function normPlayer(p){
+  if(typeof p === 'string') p = { name:p };
+  if(!p || !String(p.name || '').trim()) return null;
+  return { name:String(p.name).trim(), img:p.img || '', role:p.role ? String(p.role).trim() : '' };
+}
+function normTeam(t){
+  return {
+    tag  : t.tag || 'TEAM',
+    color: t.color || CONFIG.DEFAULT_TEAM_COLOR,
+    logo : t.logo || NOLOGO,
+    players:(Array.isArray(t.players) ? t.players : []).map(normPlayer).filter(Boolean).slice(0,MAX_PLAYERS)
+  };
+}
+
+/* Centres any number of players, tallest in the middle */
+function geometry(n){
+  const step = Math.min(340, 1840 / Math.max(n,1));   // distance between player centres
+  const wC   = Math.min(560, step * 1.7);              // centre player width
+  const pw   = Math.min(300, step - 10);               // name plate width
+  const c    = (n - 1) / 2;
+  return Array.from({length:n}, (_,i) => {
+    const d = i - c, ad = Math.abs(d);
+    const w = wC * (1 - 0.09 * ad);
+    const h = 800 * (1 - 0.035 * ad);
+    const cx = 960 + d * step;
+    const bottom = 940 - ad * 6;
+    return {
+      left:cx - w/2, top:bottom - h, w, h,
+      plateLeft:cx - pw/2, plateTop:728 - ad*ad*8, pw,
+      z:20 - Math.round(ad * 2)
+    };
+  });
+}
+
+function makeTeam(team){
+  const el = document.createElement('section');
+  el.className = 'team';
+  el.style.setProperty('--accent', team.color);
+  el.innerHTML = `
+    <div class="giant"><span></span></div>
+    <div class="players"></div>
+    <div class="fog"></div>
+    <div class="plates"></div>
+    <div class="info">
+      <div class="txt l"></div>
+      <div class="emblem"><img class="team-logo" alt="Team logo"></div>
+      <div class="txt r"></div>
+    </div>`;
+
+  el.querySelector('.giant span').textContent = team.tag;
+  el.querySelector('.info .l').textContent = CONFIG.EVENT_TEXT;
+  el.querySelector('.info .r').textContent = CONFIG.MATCH_TEXT;
+
+  const logo = el.querySelector('.team-logo');
+  logo.src = team.logo;
+  logo.onerror = () => { logo.onerror = null; logo.src = NOLOGO; };
+
+  const playersBox = el.querySelector('.players');
+  const platesBox  = el.querySelector('.plates');
+  const geo = geometry(team.players.length);
+
+  team.players.forEach((p,i) => {
+    const g = geo[i];
+
+    const card = document.createElement('article');
+    card.className = 'player';
+    card.style.cssText = `left:${g.left}px;top:${g.top}px;width:${g.w}px;height:${g.h}px;z-index:${g.z}`;
+    const img = document.createElement('img');
+    img.alt = p.name;
+    img.src = p.img || `${CONFIG.PLAYER_PATH}${encodeURIComponent(p.name)}.png`;
+    img.onerror = () => { img.onerror = null; img.src = `${CONFIG.PLAYER_PATH}noplayer.png`; };
+    card.appendChild(img);
+    playersBox.appendChild(card);
+
+    const plate = document.createElement('div');
+    plate.className = 'plate';
+    plate.style.cssText = `left:${g.plateLeft}px;top:${g.plateTop}px;width:${g.pw}px;z-index:${g.z}`;
+    plate.innerHTML = `<div class="pl-main"><div class="pl-name"></div></div>`;
+    plate.querySelector('.pl-name').textContent = p.name;
+    if(p.role){
+      const role = document.createElement('div');
+      role.className = 'pl-role';
+      role.textContent = p.role;
+      plate.appendChild(role);
+    }
+    platesBox.appendChild(plate);
+  });
+  return el;
+}
+
+/* Scale the big team tag so it spans the stage */
+function fitGiant(){
+  const span = document.querySelector('.giant span');
+  if(!span) return;
+  const MAXW = 1760, MAXFS = 600;
+  span.style.fontSize = '200px';
+  const w = span.getBoundingClientRect().width || 1;
+  span.style.fontSize = Math.min(MAXFS, 200 * MAXW / w) + 'px';
+}
+/* Shrink long player names until they fit their plate */
+function fitNames(){
+  document.querySelectorAll('.plate').forEach(plate => {
+    const name = plate.querySelector('.pl-name');
+    const avail = plate.offsetWidth - 60;
+    let fs = 27;
+    name.style.fontSize = fs + 'px';
+    while(name.getBoundingClientRect().width > avail && fs > 13){
+      fs -= 1;
+      name.style.fontSize = fs + 'px';
+    }
+  });
+}
+function fitAll(){ fitGiant(); fitNames(); }
+
+/* ── go ── */
+$('title').textContent    = CONFIG.TITLE_TEXT;
+$('topLeft').textContent  = CONFIG.TOP_LEFT_TEXT;
+$('topRight').textContent = CONFIG.TOP_RIGHT_TEXT;
+$('stageTag').textContent = CONFIG.STAGE_TEXT;
+
+$('stage').appendChild(makeTeam(normTeam(CONFIG.TEAM)));
+fitAll();   // after the team is in the page so widths can be measured
+
+/* Re-fit once the custom font has loaded */
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+</script>
+</body>
+</html>

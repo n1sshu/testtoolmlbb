@@ -1,0 +1,21 @@
+{
+  "mvp": {
+    "checkboxId": "mvp-blueteam-1",
+    "side": "blue",
+    "nickname": "zeyrox",
+    "heroImg": "Assets/HeroPick/Jawhead.png",
+    "playerPhoto": "Assets/player/zeyrox.png",
+    "stats": {
+      "LVL": 4,
+      "KDA": "1/7/1",
+      "GOLD": 7364,
+      "SPELL": "Enchanted Talisman",
+      "ITEM 1": "Tough_Boots",
+      "ITEM 2": "Corrosion_Scythe",
+      "ITEM 3": "Demon_Hunter_Sword",
+      "ITEM 4": "Golden_Staff",
+      "ITEM 5": "Dagger",
+      "ITEM 6": "idle"
+    }
+  }
+}
